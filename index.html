@@ -24,6 +24,7 @@
     <nav class="flex border-b border-gray-800 bg-gray-900/40">
         <button onclick="switchTab('market')" id="btn-market" class="flex-1 py-3 text-sm font-medium border-b-2 border-yellow-500 text-yellow-400 text-center">Каталог</button>
         <button onclick="switchTab('sell')" id="btn-sell" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center">Продать</button>
+        <button onclick="switchTab('orders')" id="btn-orders" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center">Сделки</button>
         <button onclick="switchTab('profile')" id="btn-profile" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center">Профиль</button>
     </nav>
 
@@ -75,6 +76,16 @@
             </div>
         </section>
 
+        <!-- Сделки -->
+        <section id="tab-orders" class="hidden space-y-4">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-lg">
+                <h2 id="orders-count" class="text-base font-semibold mb-3">Сделки: 0</h2>
+                <div id="orders-container" class="space-y-3">
+                    <p class="text-xs text-gray-400">Пока нет сделок</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Профиль -->
         <section id="tab-profile" class="hidden space-y-4">
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 text-center">
@@ -95,13 +106,14 @@
         let allListings = [];
 
         function switchTab(tab) {
-            ['market', 'sell', 'profile'].forEach(t => {
+            ['market', 'sell', 'orders', 'profile'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`btn-${t}`).className = "flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center";
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             document.getElementById(`btn-${tab}`).className = "flex-1 py-3 text-sm font-medium border-b-2 border-yellow-500 text-yellow-400 text-center";
             if (tab === 'market') fetchListings();
+            if (tab === 'orders') fetchOrders();
             if (tab === 'profile') fetchUserData();
         }
 
@@ -123,6 +135,30 @@
                 renderListings();
                 fetchUserData();
             } catch (e) { console.error(e); }
+        }
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/user_orders/${userId}`);
+                const orders = await res.json();
+                const container = document.getElementById('orders-container');
+                document.getElementById('orders-count').innerText = `Кол-во сделок: ${orders.length}`;
+                container.innerHTML = '';
+                if (orders.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-gray-400">Пока нет сделок</p>';
+                    return;
+                }
+                orders.forEach(o => {
+                    const role = o.buyer_id === userId ? 'Покупатель' : 'Продавец';
+                    container.innerHTML += `
+                        <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-xs space-y-1">
+                            <div class="font-bold text-yellow-400">Сделка #${o.id} [${role}]</div>
+                            <div>Лот ID: ${o.listing_id} | Цена: ${o.price} ⭐</div>
+                            <div class="text-gray-400">Статус: ${o.status}</div>
+                        </div>
+                    `;
+                });
+            } catch(e) { console.error(e); }
         }
 
         function renderListings() {
@@ -173,7 +209,7 @@
 
             if (res.ok) {
                 alert('Лот успешно выставлен за Telegram Stars!');
-                document.getElementById('sell-form'].reset();
+                document.getElementById('sell-form').reset();
                 switchTab('market');
             } else { alert('Ошибка публикации'); }
         }
