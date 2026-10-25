@@ -3,51 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StaticGram FunPay MiniApp</title>
+    <title>FunPay Stars Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 font-sans antialiased min-h-screen pb-16">
     
-    <!-- Проверка: открыто ли через Telegram / StaticGram -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // Если initData пустой — значит открыли через обычный браузер (сайт)
-        if (!tg.initData || tg.initData.length === 0) {
-            document.body.innerHTML = `
-                <div class="flex items-center justify-center h-screen p-4 bg-gray-950">
-                    <div class="bg-gray-900 border border-red-500/30 p-6 rounded-2xl shadow-xl max-w-sm text-center">
-                        <div class="text-red-400 text-4xl mb-3">🚫</div>
-                        <h2 class="text-xl font-bold text-white mb-2">Вы зашли через сайт!</h2>
-                        <p class="text-sm text-gray-400 mb-4">Этот сервис работает исключительно как Mini App внутри приложения StaticGram / Telegram.</p>
-                        <a href="https://staticgram.top/FunpayBot" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition duration-200">
-                            Открыть в Telegram
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
     </script>
 
-    <header class="sticky top-0 bg-gray-900/85 backdrop-blur border-b border-gray-800 p-4 flex justify-between items-center z-50">
-        <h1 class="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">StaticFunPay</h1>
-        <div id="user-balance" class="text-xs bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 text-emerald-400 font-semibold">
-            💰 0.00 ₽
+    <header class="sticky top-0 bg-gray-900/90 backdrop-blur border-b border-gray-800 p-4 flex justify-between items-center z-50">
+        <h1 class="text-lg font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">FunPay Stars ⭐</h1>
+        <div id="user-balance" class="text-xs bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 text-yellow-400 font-semibold">
+            ⭐ Загрузка...
         </div>
     </header>
 
     <nav class="flex border-b border-gray-800 bg-gray-900/40">
-        <button onclick="switchTab('market')" id="btn-market" class="flex-1 py-3 text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 text-center">Каталог</button>
+        <button onclick="switchTab('market')" id="btn-market" class="flex-1 py-3 text-sm font-medium border-b-2 border-yellow-500 text-yellow-400 text-center">Каталог</button>
         <button onclick="switchTab('sell')" id="btn-sell" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center">Продать</button>
         <button onclick="switchTab('profile')" id="btn-profile" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center">Профиль</button>
     </nav>
 
     <main class="p-4 max-w-xl mx-auto">
+        <!-- Каталог -->
         <section id="tab-market" class="space-y-4">
             <div class="flex gap-2 overflow-x-auto pb-2">
-                <button onclick="filterCategory('all')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-full whitespace-nowrap">Все</button>
+                <button onclick="filterCategory('all')" class="px-3 py-1 bg-yellow-600 text-white text-xs rounded-full whitespace-nowrap">Все</button>
                 <button onclick="filterCategory('Аккаунты')" class="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap border border-gray-700">Аккаунты</button>
                 <button onclick="filterCategory('Игры')" class="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap border border-gray-700">Игры</button>
                 <button onclick="filterCategory('Подписки')" class="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap border border-gray-700">Подписки</button>
@@ -56,13 +40,14 @@
             <div id="listings-container" class="space-y-3"></div>
         </section>
 
+        <!-- Продать -->
         <section id="tab-sell" class="hidden space-y-4">
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-lg">
-                <h2 class="text-base font-semibold mb-3">Выставить товар на продажу</h2>
+                <h2 class="text-base font-semibold mb-3">Выставить лот за Telegram Stars</h2>
                 <form id="sell-form" onsubmit="createListing(event)" class="space-y-3">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Категория</label>
-                        <select id="item-category" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <select id="item-category" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
                             <option value="Аккаунты">Аккаунты</option>
                             <option value="Игры">Игры</option>
                             <option value="Подписки">Подписки</option>
@@ -71,38 +56,41 @@
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Игра / Сервис</label>
-                        <input type="text" id="item-game" required placeholder="Например: Steam, Telegram" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="item-game" required placeholder="Например: Steam, Telegram" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Название товара</label>
-                        <input type="text" id="item-title" required placeholder="Например: Prime CS2 + 75 игр" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="item-title" required placeholder="Например: Prime CS2 + 75 игр" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Цена (₽)</label>
-                        <input type="number" id="item-price" required step="0.01" placeholder="500" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs text-gray-400 mb-1">Цена в Telegram Stars (⭐)</label>
+                        <input type="number" id="item-price" required min="1" placeholder="100" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Описание</label>
-                        <textarea id="item-desc" rows="3" required placeholder="Детали передачи товара..." class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        <textarea id="item-desc" rows="3" required placeholder="Детали передачи товара..." class="w-full bg-gray-800 border border-gray-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-500"></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 font-medium py-3 rounded-xl text-sm transition">Опубликовать лот</button>
+                    <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 font-medium py-3 rounded-xl text-sm transition">Опубликовать за ⭐</button>
                 </form>
             </div>
         </section>
 
+        <!-- Профиль -->
         <section id="tab-profile" class="hidden space-y-4">
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 text-center">
-                <div class="w-16 h-16 bg-indigo-600 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-2">👤</div>
-                <h2 id="user-name" class="font-bold text-base">Пользователь</h2>
-                <p id="user-id" class="text-xs text-gray-400">ID: ...</p>
+                <div class="w-16 h-16 bg-yellow-600 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-2">👤</div>
+                <h2 id="profile-name" class="font-bold text-base">Пользователь</h2>
+                <p id="profile-id" class="text-xs text-gray-400 mb-4">ID: ...</p>
+                <div id="profile-bal" class="bg-gray-800 p-3 rounded-xl border border-gray-700 font-semibold text-yellow-400">Баланс: 0 ⭐</div>
             </div>
         </section>
     </main>
 
     <script>
-        // АДАПТИРУЙ ПОД СВОЙ БЭКЕНД НА PYTHON (например, https://my-backend.onrender.com)
-        const BACKEND_URL = "https://YOUR-PYTHON-BACKEND-URL.com";
+        // 📌 ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ PYTHON-БЭКЕНД
+        const BACKEND_URL = "https://YOUR-BACKEND-URL.com";
 
+        const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id || 1780243962; // Тестовый ID для браузера
         let currentCategory = 'all';
         let allListings = [];
 
@@ -112,8 +100,20 @@
                 document.getElementById(`btn-${t}`).className = "flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 text-center";
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`btn-${tab}`).className = "flex-1 py-3 text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 text-center";
+            document.getElementById(`btn-${tab}`).className = "flex-1 py-3 text-sm font-medium border-b-2 border-yellow-500 text-yellow-400 text-center";
             if (tab === 'market') fetchListings();
+            if (tab === 'profile') fetchUserData();
+        }
+
+        async function fetchUserData() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/user/${userId}`);
+                const user = await res.json();
+                document.getElementById('profile-name').innerText = user.name || 'Пользователь';
+                document.getElementById('profile-id').innerText = `ID: ${user.id}`;
+                document.getElementById('profile-bal').innerText = `Баланс: ${user.bal} ⭐`;
+                document.getElementById('user-balance').innerText = `⭐ ${user.bal}`;
+            } catch (e) { console.error(e); }
         }
 
         async function fetchListings() {
@@ -121,6 +121,7 @@
                 const res = await fetch(`${BACKEND_URL}/api/listings`);
                 allListings = await res.json();
                 renderListings();
+                fetchUserData();
             } catch (e) { console.error(e); }
         }
 
@@ -139,13 +140,13 @@
                     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-start mb-1">
-                                <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-medium">${item.game}</span>
-                                <span class="text-emerald-400 font-bold text-sm">${item.price} ₽</span>
+                                <span class="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded-md font-medium">${item.game}</span>
+                                <span class="text-yellow-400 font-bold text-sm">⭐ ${item.price}</span>
                             </div>
                             <h3 class="font-semibold text-sm mb-1">${item.title}</h3>
                             <p class="text-xs text-gray-400 mb-3">${item.description}</p>
                         </div>
-                        <button onclick="alert('Заказ создан!')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-xl text-xs transition">Купить</button>
+                        <button onclick="buyItem(${item.id}, ${item.price})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-xl text-xs transition">Купить за ⭐</button>
                     </div>
                 `;
             });
@@ -159,9 +160,9 @@
                 category: document.getElementById('item-category').value,
                 game: document.getElementById('item-game').value,
                 title: document.getElementById('item-title').value,
-                price: parseFloat(document.getElementById('item-price').value),
+                price: parseInt(document.getElementById('item-price').value),
                 description: document.getElementById('item-desc').value,
-                seller_id: window.Telegram.WebApp.initDataUnsafe?.user?.id || 111
+                seller_id: userId
             };
 
             const res = await fetch(`${BACKEND_URL}/api/listings`, {
@@ -171,18 +172,31 @@
             });
 
             if (res.ok) {
-                alert('Товар успешно выставлен!');
+                alert('Лот успешно выставлен за Telegram Stars!');
                 document.getElementById('sell-form').reset();
                 switchTab('market');
             } else { alert('Ошибка публикации'); }
         }
 
+        async function buyItem(listingId, price) {
+            if (!confirm(`Подтвердить покупку лота за ${price} ⭐?`)) return;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/buy`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ listing_id: listingId, buyer_id: userId })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert('Покупка успешна! Продавец получил звезды, а вам отправлено уведомление в чат бота.');
+                    fetchListings();
+                } else {
+                    alert(result.detail || 'Ошибка при покупке');
+                }
+            } catch (e) { alert('Ошибка соединения с сервером'); }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            const user = window.Telegram.WebApp.initDataUnsafe?.user;
-            if (user) {
-                if (user.first_name) document.getElementById('user-name').innerText = user.first_name;
-                document.getElementById('user-id').innerText = `ID: ${user.id}`;
-            }
             fetchListings();
         });
     </script>
