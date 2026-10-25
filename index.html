@@ -90,7 +90,7 @@
         // 📌 ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ PYTHON-БЭКЕНД
         const BACKEND_URL = "https://YOUR-BACKEND-URL.com";
 
-        const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id || 1780243962; // Тестовый ID для браузера
+        const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id || 1780243962;
         let currentCategory = 'all';
         let allListings = [];
 
@@ -173,7 +173,7 @@
 
             if (res.ok) {
                 alert('Лот успешно выставлен за Telegram Stars!');
-                document.getElementById('sell-form').reset();
+                document.getElementById('sell-form'].reset();
                 switchTab('market');
             } else { alert('Ошибка публикации'); }
         }
