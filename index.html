@@ -28,16 +28,12 @@
             background-color: var(--bg); color: var(--text);
         }
 
-        .app-container {
-            display: flex; flex-direction: column; width: 100%;
-            height: var(--tg-viewport-stable-height, 100vh);
-        }
+        .app-container { display: flex; flex-direction: column; width: 100%; height: var(--tg-viewport-stable-height, 100vh); }
 
         header {
             flex-shrink: 0; height: 54px; background-color: var(--sec-bg);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; font-size: 22px; font-weight: 800;
-            border-bottom: 1px solid var(--border); z-index: 10;
+            padding: 0 16px; font-size: 22px; font-weight: 800; border-bottom: 1px solid var(--border); z-index: 10;
         }
         .header-logo span { color: var(--accent); }
         .header-bal {
@@ -74,20 +70,12 @@
         .list-group { background-color: var(--sec-bg); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border); }
         .list-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 16px; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--border);
-            cursor: pointer;
+            padding: 15px 16px; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--border); cursor: pointer;
         }
         .list-item:active { background-color: rgba(128, 128, 128, 0.15); }
         .list-item:last-child { border-bottom: none; }
         .list-item-title { display: flex; align-items: center; gap: 12px; }
         .list-icon { font-size: 20px; width: 24px; text-align: center; }
-
-        .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); transition: .25s; border-radius: 30px; }
-        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .25s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(20px); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card {
@@ -123,15 +111,6 @@
         }
         .username { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
         .verified { background: var(--accent); color: #000; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-        .profile-bal-box {
-            background: rgba(245, 166, 35, 0.15); border: 1px solid var(--accent);
-            color: var(--accent); padding: 8px 18px; border-radius: 20px; font-weight: 800; font-size: 16px; margin-top: 6px;
-        }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .stat-card { background: var(--sec-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
-        .stat-val { font-size: 17px; font-weight: 800; }
-        .stat-lbl { font-size: 12px; color: var(--hint); margin-top: 3px; }
 
         .sub-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
         .sub-tab {
@@ -224,17 +203,6 @@
         <div id="tab-settings" class="tab">
             <h2>Настройки</h2>
             <div class="list-group">
-                <div class="list-item">
-                    <div class="list-item-title"><span class="list-icon">🔒</span> Скрытный режим (Аноним)</div>
-                    <label class="switch"><input type="checkbox" id="set-anon" onchange="toggleAnon()"><span class="slider"></span></label>
-                </div>
-                <div class="list-item">
-                    <div class="list-item-title"><span class="list-icon">💬</span> Авто-отправка после оплаты</div>
-                    <label class="switch"><input type="checkbox" id="set-auto" checked onchange="showToast('Сохранено')"><span class="slider"></span></label>
-                </div>
-            </div>
-
-            <div class="list-group">
                 <div class="list-item" onclick="openKalbaLink()">
                     <div class="list-item-title"><span class="list-icon">🆘</span> Поддержка (@kalba)</div>
                     <span style="color: var(--hint); font-size: 18px;">↗</span>
@@ -242,7 +210,7 @@
             </div>
         </div>
 
-        <!-- 5. ПРОФИЛЬ (Пополнение и вывод убраны в .py бота) -->
+        <!-- 5. ПРОФИЛЬ -->
         <div id="tab-profile" class="tab">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -250,72 +218,16 @@
                     <span id="username-display">Ник</span>
                     <span id="user-verif-badge" class="verified" style="display:none;">✔</span>
                 </div>
-                <div style="font-size: 13px; color: var(--hint);">ID: <code id="userid-display">0</code></div>
-                <div class="profile-bal-box" id="profile-bal-box">Баланс: 0 ⭐</div>
-                <div style="font-size: 12px; color: var(--hint); margin-top: 6px;">Пополнение и вывод доступны в главном меню бота</div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-val">5.0 ⭐</div>
-                    <div class="stat-lbl">Рейтинг продавца</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val">5.0 ⭐</div>
-                    <div class="stat-lbl">Рейтинг покупателя</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val" id="stat-sales">0</div>
-                    <div class="stat-lbl">Продаж</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val" id="stat-buys">0</div>
-                    <div class="stat-lbl">Покупок</div>
-                </div>
-            </div>
-
-            <div class="list-group">
-                <div class="list-item" onclick="syncWithBackend(true)">
-                    <div class="list-item-title"><span class="list-icon">🔄</span> Синхронизировать баланс</div>
-                    <span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openTransferModal()">
-                    <div class="list-item-title"><span class="list-icon">💸</span> Перевести звезды</div>
-                    <span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openTxHistoryModal()">
-                    <div class="list-item-title"><span class="list-icon">📜</span> История операций</div>
-                    <span style="color: var(--hint);">›</span>
-                </div>
+                <div style="font-size: 13px; color: var(--hint); margin-bottom: 6px;">ID: <code id="userid-display">0</code></div>
+                <button class="btn secondary" style="width:auto; padding:6px 14px; font-size:13px;" onclick="syncWithBackend(true)">🔄 Синхронизировать баланс</button>
             </div>
         </div>
 
         <!-- 6. АДМИН ПАНЕЛЬ -->
         <div id="tab-admin" class="tab">
             <h2 style="color: var(--accent);">🛠 Админ-панель</h2>
-            
             <div class="list-group">
-                <div class="list-item" onclick="openAdminOrderLog()">
-                    <div class="list-item-title"><span class="list-icon">📋</span> Логи по номеру сделки</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openAdminUsersBal(0)">
-                    <div class="list-item-title"><span class="list-icon">💰</span> Балансы юзеров и комиссия</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openAdminStats()">
-                    <div class="list-item-title"><span class="list-icon">📊</span> Статистика бота</div><span style="color: var(--hint);">›</span>
-                </div>
-            </div>
-
-            <div class="list-group">
-                <div class="list-item" onclick="openAdminBan()">
-                    <div class="list-item-title"><span class="list-icon">⛔</span> Отстранить / Разбанить</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openAdminVerifs()">
-                    <div class="list-item-title"><span class="list-icon">🛡</span> Управление верификациями</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="openAdminStars()">
-                    <div class="list-item-title"><span class="list-icon">⭐</span> Выдать / Забрать звезды</div><span style="color: var(--hint);">›</span>
-                </div>
+                <div class="list-item" onclick="openAdminStats()"><div class="list-item-title">📊 Статистика</div><span style="color: var(--hint);">›</span></div>
             </div>
         </div>
     </main>
@@ -354,37 +266,28 @@
 
     const API_BASE = urlParams.get("api") || "";
 
-    let state = JSON.parse(localStorage.getItem('fp_webapp_sync_v3')) || {
+    let state = {
         users: [{ id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: parseInt(urlParams.get("bal")) || 0, verif: "", banned_until: 0 }],
         admins: [MAIN_ADMIN_ID],
         listings: [],
         orders: [],
-        transactions: [],
-        earnedFee: 0,
-        anonMode: false
+        reviews: []
     };
 
-    // Если бот передал свежий баланс через URL-параметр кнопки «Играть» — сразу применяем
     if (urlParams.has("bal")) {
         let u = state.users.find(x => String(x.id) === String(tgUser.id));
         if (u) u.bal = parseInt(urlParams.get("bal")) || 0;
     }
 
-    function saveState() {
-        localStorage.setItem('fp_webapp_sync_v3', JSON.stringify(state));
-        updateTopProfile();
-    }
-
     function currentUser() {
         let u = state.users.find(x => String(x.id) === String(tgUser.id));
         if (!u) {
-            u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: parseInt(urlParams.get("bal")) || 0, verif: "", banned_until: 0 };
+            u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: 0, verif: "", banned_until: 0 };
             state.users.push(u);
         }
         return u;
     }
 
-    // Синхронизация с БД Python-бота (funpay_chat_market.db)
     async function syncWithBackend(manual = false) {
         try {
             const res = await fetch(`${API_BASE}/api/state?uid=${tgUser.id}&name=${encodeURIComponent(tgUser.first_name||'')}&uname=${encodeURIComponent(tgUser.username||'')}`);
@@ -395,18 +298,17 @@
                     state.admins = data.admins;
                     state.listings = data.listings;
                     state.orders = data.orders;
-                    state.transactions = data.transactions;
-                    state.earnedFee = data.earnedFee;
-                    saveState();
+                    state.reviews = data.reviews;
+                    updateTopProfile();
                     renderMarket();
                     renderMyListings();
-                    if (manual) showToast("✅ Баланс синхронизирован с ботом!");
+                    if (manual) showToast("✅ Синхронизировано!");
                     return;
                 }
             }
         } catch (e) {}
         updateTopProfile();
-        if (manual) showToast(`⭐ Актуальный баланс: ${currentUser().bal} ⭐`);
+        if (manual) showToast(`⭐ Баланс: ${currentUser().bal} ⭐`);
     }
 
     async function apiCall(payload) {
@@ -446,17 +348,13 @@
     function updateTopProfile() {
         const u = currentUser();
         document.getElementById('top-bal').innerText = `${u.bal} ⭐`;
-        document.getElementById('profile-bal-box').innerText = `Баланс: ${u.bal} ⭐`;
-        document.getElementById('username-display').innerText = state.anonMode ? "Аноним" : (u.name || u.uname);
+        document.getElementById('username-display').innerText = (u.name || u.uname);
         document.getElementById('userid-display').innerText = u.id;
 
         const badge = document.getElementById('user-verif-badge');
         if (u.verif === 'staff') { badge.style.display = 'inline-flex'; badge.innerText = '🛡'; }
         else if (u.verif === 'funpay') { badge.style.display = 'inline-flex'; badge.innerText = '⭐'; }
         else { badge.style.display = 'none'; }
-
-        document.getElementById('stat-sales').innerText = state.orders.filter(o => String(o.seller_id) === String(u.id) && o.status === 'completed').length;
-        document.getElementById('stat-buys').innerText = state.orders.filter(o => String(o.buyer_id) === String(u.id)).length;
 
         const isAdmin = state.admins.map(String).includes(String(u.id)) || urlParams.get("admin") === "1";
         document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
@@ -497,7 +395,7 @@
         );
 
         if (activeItems.length === 0) {
-            container.innerHTML = `<div class="empty-state"><span>🛒</span>Пока нет активных продаж</div>`;
+            container.innerHTML = `<div class="empty-state"><span>🛒</span>Пока нет активных товаров</div>`;
             return;
         }
 
@@ -536,22 +434,21 @@
     }
 
     function openCreateItemModal() {
-        if (isUserBanned(currentUser().id)) return showToast("⛔ Вы временно отстранены!");
         openModal("➕ Создать товар", `
             <select id="ci-cat" class="input">
-                <option value="Аккаунты">Категория: Аккаунты</option>
-                <option value="Игры">Категория: Игры</option>
-                <option value="Подписки">Категория: Подписки</option>
-                <option value="Валюта">Категория: Валюта</option>
-                <option value="Прочее">Категория: Прочее</option>
+                <option value="Аккаунты">Аккаунты</option>
+                <option value="Игры">Игры</option>
+                <option value="Подписки">Подписки</option>
+                <option value="Валюта">Валюта</option>
+                <option value="Прочее">Прочее</option>
             </select>
-            <input type="text" id="ci-game" class="input" placeholder="Игра или сервис (например: Telegram, Steam)">
+            <input type="text" id="ci-game" class="input" placeholder="Игра или сервис (например: Steam, Telegram)">
             <input type="text" id="ci-title" class="input" placeholder="Название товара">
-            <input type="number" id="ci-price" class="input" placeholder="Цена в StaticGram Stars (⭐)">
-            <input type="number" id="ci-amount" class="input" placeholder="Количество (шт.)" value="1">
+            <input type="number" id="ci-price" class="input" placeholder="Цена в Stars (⭐)">
+            <input type="number" id="ci-amount" class="input" placeholder="Количество" value="1">
             <input type="text" id="ci-photo" class="input" placeholder="Ссылка на фото (необязательно)">
-            <textarea id="ci-desc" class="input" placeholder="Подробное описание товара..."></textarea>
-            <input type="text" id="ci-auto" class="input" placeholder="Текст автовыдачи (логин:пароль / код)">
+            <textarea id="ci-desc" class="input" placeholder="Описание товара..."></textarea>
+            <input type="text" id="ci-auto" class="input" placeholder="Текст автовыдачи">
             <button class="btn" onclick="submitCreateItem()">✅ Опубликовать</button>
         `);
     }
@@ -566,26 +463,16 @@
         const description = document.getElementById('ci-desc').value.trim();
         const auto_text = document.getElementById('ci-auto').value.trim();
 
-        if (!title || isNaN(price) || price <= 0 || !description) {
-            return showToast("❌ Заполните название, цену и описание!");
-        }
-        if (/^(⭐|🌟|💫|✨|<emoji)/i.test(title) || /верифицирован|verified|funpay\s*staff/i.test(title)) {
-            return showToast("❌ Запрещено ставить звезду в начало названия или писать о верификации!");
-        }
-        if (/верифицирован|verified|funpay\s*staff|гарант/i.test(description)) {
-            return showToast("❌ В описании запрещено упоминать верификацию!");
-        }
+        if (!title || isNaN(price) || price <= 0 || !description) return showToast("❌ Заполните обязательные поля!");
+        if (/^(⭐|🌟|💫|✨|<emoji)/i.test(title) || /верифицирован|verified|funpay\s*staff/i.test(title)) return showToast("❌ Ошибка в названии!");
+        if (/верифицирован|verified|funpay\s*staff|гарант/i.test(description)) return showToast("❌ Ошибка в описании!");
 
         const res = await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
         if (res && !res.ok) return showToast("❌ " + res.error);
-        if (!res) {
-            state.listings.unshift({ id: Date.now(), category, game, title, price, amount, photo, description, auto_text, seller_id: currentUser().id, active: 1 });
-            saveState();
-        }
         closeModal();
         renderMyListings();
         renderMarket();
-        showToast("✅ Товар успешно создан!");
+        showToast("✅ Товар создан!");
     }
 
     function openItemCard(itemId) {
@@ -595,58 +482,65 @@
         const u = currentUser();
 
         let verifLine = "";
-        if (seller.verif === "staff") verifLine = `<div style="margin-top:10px;"><b><i>🛡 Этот аккаунт верифицирован организацией «FunPay Staff».</i></b></div>`;
-        else if (seller.verif === "funpay") verifLine = `<div style="margin-top:10px;"><b><i>⭐ Этот аккаунт верифицирован организацией «FunPay».</i></b></div>`;
+        if (seller.verif === "staff") verifLine = `<div style="margin-top:10px;"><b><i>🛡 Аккаунт верифицирован «FunPay Staff».</i></b></div>`;
+        else if (seller.verif === "funpay") verifLine = `<div style="margin-top:10px;"><b><i>⭐ Аккаунт верифицирован «FunPay».</i></b></div>`;
 
         const canManage = String(item.seller_id) === String(u.id) || state.admins.map(String).includes(String(u.id));
-        const imgUrl = item.media_id || item.photo;
 
         openModal("Карточка товара", `
-            ${imgUrl ? `<img src="${imgUrl}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+            ${item.media_id || item.photo ? `<img src="${item.media_id || item.photo}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
             <div style="font-size:18px; font-weight:800; margin-bottom:8px;">${getSellerPrefix(item.seller_id)}${item.title}</div>
             <div style="color:var(--hint); font-size:14px; white-space:pre-wrap; margin-bottom:14px;">${item.description}</div>
             <div class="list-group" style="padding:12px; font-size:14px; line-height:1.7;">
                 <div>• Цена: <b style="color:var(--accent);">${item.price} ⭐</b></div>
                 <div>• В наличии: <b>${item.amount} шт.</b></div>
-                <div>• Категория: ${item.category} (${item.game})</div>
-                <div>• Продавец: <b>${seller.name}</b> (ID: <code>${seller.id}</code>)</div>
+                <div>• Продавец: <b style="cursor:pointer; color:var(--accent);" onclick="openSellerReviews(${seller.id}, '${seller.name || seller.uname}')">${seller.name || seller.uname} (Отзывы ⭐)</b></div>
                 ${verifLine}
             </div>
             ${String(item.seller_id) !== String(u.id) ? `<button class="btn" onclick="buyItem(${item.id})">💳 Купить за ${item.price} ⭐</button>` : ''}
-            ${canManage ? `<button class="btn danger" onclick="deleteItem(${item.id})">🗑 Удалить товар</button>` : ''}
+            ${canManage ? `<button class="btn danger" onclick="deleteItem(${item.id})">🗑 Удалить</button>` : ''}
         `);
     }
 
     async function deleteItem(itemId) {
         await apiCall({ action: "delete_item", item_id: itemId });
-        const item = state.listings.find(x => x.id === itemId);
-        if (item) item.active = 0;
-        saveState();
         closeModal();
-        renderMarket();
-        renderMyListings();
+        syncWithBackend();
         showToast("🗑 Товар удален");
     }
 
     async function buyItem(itemId) {
         const item = state.listings.find(x => x.id === itemId);
         const u = currentUser();
-        if (!item || item.amount <= 0) return showToast("❌ Товар распродан");
-        if (u.bal < item.price) return showToast(`❌ Недостаточно средств! Пополните баланс в боте.`);
-
+        if (u.bal < item.price) return showToast("❌ Недостаточно средств! Пополните баланс в боте.");
         const res = await apiCall({ action: "buy_item", item_id: itemId });
         if (res && !res.ok) return showToast("❌ " + res.error);
-        if (!res) {
-            u.bal -= item.price;
-            item.amount -= 1;
-            if (item.amount <= 0) item.active = 0;
-            const orderId = state.orders.length + 1;
-            state.orders.unshift({ id: orderId, listing_id: item.id, title: item.title, description: item.description, buyer_id: u.id, seller_id: item.seller_id, price: item.price, amount: 1, auto_text: item.auto_text, status: 'pending' });
-            saveState();
-        }
         closeModal();
         switchTab('chats');
         showToast("✅ Покупка успешна!");
+    }
+
+    // Отзывы продавца
+    function openSellerReviews(sellerId, sellerName) {
+        const revs = state.reviews.filter(r => String(r.seller_id) === String(sellerId) && !r.reported);
+        const avg = revs.length ? (revs.reduce((a,b)=>a+b.rating,0)/revs.length).toFixed(1) : "5.0";
+
+        openModal(`Отзывы о ${sellerName}`, `
+            <div style="font-size:16px; font-weight:700; margin-bottom:12px;">Рейтинг: ⭐ ${avg} / 5 (Отзывов: ${revs.length})</div>
+            ${revs.length === 0 ? `<div class="empty-state">Пока нет отзывов</div>` : revs.map(r => `
+                <div class="list-group" style="padding:12px; font-size:14px; margin-bottom:8px;">
+                    <div><b>${r.rating} ⭐</b> ${r.anonymous ? '<i>(Анонимно)</i>' : ''}</div>
+                    <div style="margin-top:4px; color:var(--hint);">${r.comment}</div>
+                    <button class="btn secondary" style="margin-top:8px; padding:6px; font-size:12px;" onclick="reportReview(${r.id})">🚨 Пожаловаться</button>
+                </div>
+            `).join('')}
+        `);
+    }
+
+    async function reportReview(reviewId) {
+        await apiCall({ action: "report_review", review_id: reviewId });
+        closeModal();
+        showToast("✅ Жалоба отправлена админу");
     }
 
     let currentSubTab = 'purchases';
@@ -660,246 +554,111 @@
     function renderSubTab() {
         const u = currentUser();
         const box = document.getElementById('subtab-content');
-        const getOrderTitle = (o) => {
-            if (o.title) return o.title;
-            const l = state.listings.find(x => x.id === o.listing_id);
-            return l ? l.title : `Лот #${o.listing_id}`;
-        };
 
         if (currentSubTab === 'purchases') {
             const list = state.orders.filter(o => String(o.buyer_id) === String(u.id));
-            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>🛍</span>У вас пока нет покупок</div>`; return; }
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>🛍</span>У вас нет покупок</div>`; return; }
             box.innerHTML = list.map(o => `
                 <div class="list-group" style="padding:14px;">
                     <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:6px;">
-                        <span>Сделка #${o.id} — ${getOrderTitle(o)}</span>
+                        <span>Сделка #${o.id}</span>
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
-                    <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Статус: ${o.status}</div>
+                    <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Статус: <b>${o.status}</b></div>
                     ${o.status === 'pending' ? `
-                        <div style="display:flex; gap:8px;">
+                        <div style="display:flex; gap:8px; margin-bottom:8px;">
                             <button class="btn success" style="margin:0; padding:10px;" onclick="confirmOrder(${o.id})">✅ Подтвердить</button>
                             <button class="btn danger" style="margin:0; padding:10px;" onclick="disputeOrder(${o.id})">⚠️ Спор</button>
                         </div>
+                    ` : ''}
+                    ${o.status === 'completed' && !state.reviews.some(r => String(r.order_id) === String(o.id)) ? `
+                        <button class="btn" style="margin:0; padding:10px;" onclick="openReviewModal(${o.id}, ${o.seller_id})">⭐ Оставить отзыв</button>
                     ` : ''}
                 </div>
             `).join('');
         } else if (currentSubTab === 'sales') {
             const list = state.orders.filter(o => String(o.seller_id) === String(u.id));
-            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💰</span>У вас пока нет продаж</div>`; return; }
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💰</span>У вас нет продаж</div>`; return; }
             box.innerHTML = list.map(o => `
                 <div class="list-group" style="padding:14px;">
                     <div style="display:flex; justify-content:space-between; font-weight:700;">
-                        <span>Сделка #${o.id} — ${getOrderTitle(o)}</span>
+                        <span>Сделка #${o.id}</span>
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
-                    <div style="font-size:13px; color:var(--hint); margin-top:6px;">Статус: ${o.status} | Покупатель: <code>${o.buyer_id}</code></div>
+                    <div style="font-size:13px; color:var(--hint); margin-top:6px;">Статус: ${o.status}</div>
                 </div>
             `).join('');
         } else {
-            const list = state.orders.filter(o => String(o.buyer_id) === String(u.id) || String(o.seller_id) === String(u.id));
-            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💬</span>Нет активных чатов</div>`; return; }
-            box.innerHTML = `<div class="list-group">` + list.map(o => `
-                <div class="list-item" onclick="showToast('Сделка #${o.id} (${getOrderTitle(o)})')">
-                    <div class="list-item-title"><span class="list-icon">💬</span> Сделка #${o.id} — ${getOrderTitle(o)}</div>
-                    <span style="color:var(--accent);">${o.status}</span>
-                </div>
-            `).join('') + `</div>`;
+            box.innerHTML = `<div class="empty-state"><span>💬</span>Чаты доступны через бота в Telegram</div>`;
         }
     }
 
     async function confirmOrder(orderId) {
         await apiCall({ action: "confirm_order", order_id: orderId });
-        const o = state.orders.find(x => x.id === orderId);
-        if (o && o.status === 'pending') {
-            o.status = 'completed';
-            const s = state.users.find(x => String(x.id) === String(o.seller_id));
-            if (s) s.bal += o.price;
-            saveState();
-        }
         renderSubTab();
-        showToast(`✅ Сделка #${orderId} подтверждена!`);
+        showToast("✅ Заказ подтвержден!");
     }
 
     async function disputeOrder(orderId) {
         await apiCall({ action: "dispute_order", order_id: orderId });
-        const o = state.orders.find(x => x.id === orderId);
-        if (o) o.status = 'disputed';
-        saveState();
         renderSubTab();
-        showToast(`🚨 Спор по сделке #${orderId} открыт!`);
+        showToast("🚨 Запрос возврата (спор) отправлен!");
+    }
+
+    function openReviewModal(orderId, sellerId) {
+        openModal("⭐ Оставить отзыв", `
+            <select id="rev-rating" class="input">
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+            </select>
+            <textarea id="rev-text" class="input" placeholder="Напишите комментарий к отзыву..."></textarea>
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px;">
+                <input type="checkbox" id="rev-anon" style="width:18px; height:18px;"> Оставить отзыв анонимно
+            </label>
+            <button class="btn" onclick="submitReview(${orderId})">📤 Отправить отзыв</button>
+        `);
+    }
+
+    async function submitReview(orderId) {
+        const rating = parseInt(document.getElementById('rev-rating').value);
+        const comment = document.getElementById('rev-text').value.trim() || "Без комментария";
+        const anonymous = document.getElementById('rev-anon').checked ? 1 : 0;
+        await apiCall({ action: "add_review", order_id: orderId, rating, comment, anonymous });
+        closeModal();
+        renderSubTab();
+        showToast("✅ Отзыв опубликован!");
     }
 
     function openTransferModal() {
         openModal("💸 Перевести звезды", `
-            <input type="text" id="tr-target" class="input" placeholder="Username (@username) или ID получателя">
-            <input type="number" id="tr-amt" class="input" placeholder="Сумма звезд (⭐)">
-            <button class="btn" onclick="submitTransfer()">Отправить перевод</button>
+            <input type="text" id="tr-target" class="input" placeholder="Username (@username) или ID">
+            <input type="number" id="tr-amt" class="input" placeholder="Сумма (⭐)">
+            <button class="btn" onclick="submitTransfer()">Перевести</button>
         `);
     }
 
     async function submitTransfer() {
         const target = document.getElementById('tr-target').value.trim().replace(/^@/, '');
         const amount = parseInt(document.getElementById('tr-amt').value);
-        const u = currentUser();
-        if (!target || isNaN(amount) || amount <= 0 || u.bal < amount) return showToast("❌ Проверьте данные или баланс");
-
         const res = await apiCall({ action: "transfer", target, amount });
         if (res && !res.ok) return showToast("❌ " + res.error);
-        if (!res) {
-            u.bal -= amount;
-            saveState();
-        }
         closeModal();
-        showToast(`✅ Переведено ${amount} ⭐`);
-    }
-
-    function openTxHistoryModal() {
-        const txs = state.transactions.slice(0, 15);
-        if (!txs.length) return openModal("📜 История операций", `<div class="empty-state">Операций пока нет</div>`);
-        openModal("📜 История операций", `<div class="list-group" style="padding:12px;">` + txs.map(t => `
-            <div style="border-bottom:1px solid var(--border); padding:8px 0; font-size:14px;">
-                <b>${t.type}</b>: ${t.amount} ⭐<br><span style="color:var(--hint); font-size:12px;">${t.description || t.desc || ''}</span>
-            </div>
-        `).join('') + `</div>`);
-    }
-
-    function toggleAnon() {
-        state.anonMode = document.getElementById('set-anon').checked;
-        saveState();
-        showToast(state.anonMode ? "🥷 Скрытный режим включен" : "Скрытный режим выключен");
-    }
-
-    function openKalbaLink() {
-        if (tg?.openLink) tg.openLink('https://staticgram.top/kalba');
-        else window.open('https://staticgram.top/kalba', '_blank');
-    }
-
-    function openAdminOrderLog() {
-        openModal("📋 Логи по номеру сделки", `
-            <input type="number" id="adm-log-id" class="input" placeholder="Введите номер сделки (#)">
-            <button class="btn" onclick="showAdminOrderLog()">Найти сделку</button>
-            <div id="adm-log-res"></div>
-        `);
-    }
-
-    function showAdminOrderLog() {
-        const id = parseInt(document.getElementById('adm-log-id').value);
-        const o = state.orders.find(x => x.id === id);
-        const res = document.getElementById('adm-log-res');
-        if (!o) { res.innerHTML = `<div style="color:var(--danger);">❌ Сделка #${id} не найдена</div>`; return; }
-        const l = state.listings.find(x => x.id === o.listing_id) || {};
-        res.innerHTML = `
-            <div class="list-group" style="padding:12px; font-size:14px; line-height:1.6;">
-                <div><b>📋 Сделка #${o.id}</b></div>
-                <div>• Статус: <b>${o.status}</b></div>
-                <div>• Покупатель ID: <code>${o.buyer_id}</code></div>
-                <div>• Продавец ID: <code>${o.seller_id}</code></div>
-                <div>• Товар: <b>${o.title || l.title || 'Удален'}</b></div>
-                <div>• Описание: <i>${o.description || l.description || 'Нет'}</i></div>
-                <div>• Сумма: <b>${o.price} ⭐</b></div>
-            </div>
-        `;
-    }
-
-    function openAdminUsersBal(page = 0) {
-        const sorted = [...state.users].sort((a, b) => b.bal - a.bal);
-        const perPage = 6;
-        const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
-        page = Math.max(0, Math.min(page, totalPages - 1));
-        const items = sorted.slice(page * perPage, (page + 1) * perPage);
-
-        openModal("💰 Балансы юзеров", `
-            <div style="margin-bottom:12px; font-size:15px;">
-                Заработано с комиссии: <b style="color:var(--accent);">${state.earnedFee} ⭐</b><br>
-                <span style="color:var(--hint); font-size:13px;">Баланс каждого пользователя:</span>
-            </div>
-            ${items.map(u => `
-                <button class="btn secondary" style="justify-content:space-between; margin-bottom:8px;" onclick="showToast('ID: ${u.id} | Баланс: ${u.bal} ⭐')">
-                    <span>@${u.uname || u.name || u.id}</span>
-                    <span style="color:var(--accent);">${u.bal} ⭐</span>
-                </button>
-            `).join('')}
-            <div style="display:flex; gap:8px; margin-top:10px;">
-                <button class="btn secondary" style="margin:0;" ${page<=0?'disabled':''} onclick="openAdminUsersBal(${page-1})">&lt;</button>
-                <div style="display:flex; align-items:center; padding:0 12px; font-weight:700;">${page+1}/${totalPages}</div>
-                <button class="btn secondary" style="margin:0;" ${page>=totalPages-1?'disabled':''} onclick="openAdminUsersBal(${page+1})">&gt;</button>
-            </div>
-        `);
+        showToast("✅ Перевод выполнен!");
     }
 
     function openAdminStats() {
-        const activeLots = state.listings.filter(x => x.active && x.amount > 0).length;
-        openModal("📊 Статистика бота", `
-            <div class="list-group" style="padding:14px; font-size:15px; line-height:1.8;">
+        openModal("📊 Статистика", `
+            <div class="list-group" style="padding:14px; line-height:1.8;">
                 <div>• Пользователей: <b>${state.users.length}</b></div>
-                <div>• Активных лотов: <b>${activeLots}</b></div>
-                <div>• Всего сделок: <b>${state.orders.length}</b></div>
-                <div>• Заработано с комиссий: <b>${state.earnedFee} ⭐</b></div>
+                <div>• Сделок: <b>${state.orders.length}</b></div>
+                <div>• Отзывов: <b>${state.reviews.length}</b></div>
             </div>
         `);
     }
 
-    function openAdminBan() {
-        openModal("⛔ Отстранить / Разбанить", `
-            <input type="text" id="ban-user" class="input" placeholder="Username (@username) или ID">
-            <input type="number" id="ban-mins" class="input" placeholder="Время в минутах (0 — разбанить)">
-            <button class="btn danger" onclick="submitAdminBan()">Применить</button>
-        `);
-    }
-
-    async function submitAdminBan() {
-        const target = document.getElementById('ban-user').value.trim().replace(/^@/, '');
-        const minutes = parseInt(document.getElementById('ban-mins').value) || 0;
-        const res = await apiCall({ action: "admin_ban", target, minutes });
-        if (res && !res.ok) return showToast("❌ " + res.error);
-        closeModal();
-        renderMarket();
-        showToast(minutes > 0 ? `⛔ Отстранен на ${minutes} мин.` : "✅ Разбанен");
-    }
-
-    function openAdminVerifs() {
-        openModal("🛡 Управление верификациями", `
-            <input type="text" id="verif-user" class="input" placeholder="Username (@username) или ID">
-            <button class="btn" onclick="setVerif('staff')">🛡 Выдать «FunPay Staff»</button>
-            <button class="btn" onclick="setVerif('funpay')">⭐ Выдать «FunPay»</button>
-            <button class="btn danger" onclick="setVerif('')">🗑 Забрать верификацию</button>
-        `);
-    }
-
-    async function setVerif(verif_type) {
-        const target = document.getElementById('verif-user').value.trim().replace(/^@/, '');
-        const res = await apiCall({ action: "admin_verif", target, verif_type });
-        if (res && !res.ok) return showToast("❌ " + res.error);
-        closeModal();
-        renderMarket();
-        showToast(verif_type ? "✅ Верификация выдана!" : "🗑 Верификация снята");
-    }
-
-    function openAdminStars() {
-        openModal("⭐ Выдать / Забрать звезды", `
-            <input type="text" id="st-user" class="input" placeholder="Username (@username) или ID">
-            <input type="number" id="st-diff" class="input" placeholder="Сумма (например 100 или -50)">
-            <button class="btn" onclick="submitAdminStars()">Применить</button>
-        `);
-    }
-
-    async function submitAdminStars() {
-        const target = document.getElementById('st-user').value.trim().replace(/^@/, '');
-        const diff = parseInt(document.getElementById('st-diff').value);
-        if (!target || isNaN(diff)) return showToast("❌ Проверьте поля");
-        const res = await apiCall({ action: "admin_stars", target, diff });
-        if (res && !res.ok) return showToast("❌ " + res.error);
-        if (!res) {
-            let u = state.users.find(x => String(x.id) === target || (x.uname && x.uname.toLowerCase() === target.toLowerCase()));
-            if (u) u.bal = Math.max(0, u.bal + diff);
-            saveState();
-        }
-        closeModal();
-        showToast("✅ Баланс обновлен!");
-    }
-
-    // Первичная загрузка и автосинхронизация каждые 5 секунд
     syncWithBackend();
     renderMarket();
     setInterval(() => syncWithBackend(), 5000);
