@@ -169,7 +169,7 @@
 <div class="app-container">
     <header>
         <div class="header-logo">Fun<span>Pay</span> ↕</div>
-        <div class="header-bal" onclick="switchTab('profile')" id="top-bal">0 ⭐</div>
+        <div class="header-bal" onclick="switchTab('profile')" id="top-bal">1000 ⭐</div>
     </header>
 
     <main>
@@ -215,11 +215,10 @@
             <div class="profile-header">
                 <div class="avatar">👤</div>
                 <div class="username">
-                    <span id="username-display">Ник</span>
-                    <span id="user-verif-badge" class="verified" style="display:none;">✔</span>
+                    <span id="username-display">kalba</span>
+                    <span id="user-verif-badge" class="verified" style="display:inline-flex;">🛡</span>
                 </div>
-                <div style="font-size: 13px; color: var(--hint); margin-bottom: 6px;">ID: <code id="userid-display">0</code></div>
-                <button class="btn secondary" style="width:auto; padding:6px 14px; font-size:13px;" onclick="syncWithBackend(true)">🔄 Синхронизировать данные</button>
+                <div style="font-size: 13px; color: var(--hint); margin-bottom: 6px;">ID: <code id="userid-display">1780243962</code></div>
             </div>
         </div>
 
@@ -238,7 +237,7 @@
         <div class="nav-item" id="nav-sell" onclick="switchTab('sell')"><div class="nav-icon">📦</div><div class="nav-text">Продажа</div></div>
         <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-text">Настройки</div></div>
         <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><div class="nav-icon">👤</div><div class="nav-text">Профиль</div></div>
-        <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin')"><div class="nav-icon">🛡️</div><div class="nav-text">Админ</div></div>
+        <div class="nav-item" id="nav-admin" style="display: flex;" onclick="switchTab('admin')"><div class="nav-icon">🛡️</div><div class="nav-text">Админ</div></div>
     </nav>
 </div>
 
@@ -257,81 +256,36 @@
     if (tg) { tg.expand(); tg.ready(); }
 
     const MAIN_ADMIN_ID = 1780243962;
-    const urlParams = new URLSearchParams(window.location.search);
-    const tgUser = tg?.initDataUnsafe?.user || {
-        id: parseInt(urlParams.get("uid")) || MAIN_ADMIN_ID,
-        first_name: "kalba",
-        username: "kalba"
-    };
+    const tgUser = tg?.initDataUnsafe?.user || { id: MAIN_ADMIN_ID, first_name: "kalba", username: "kalba" };
 
-    const API_BASE = urlParams.get("api") || "";
-
-    let state = {
-        users: [{ id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: parseInt(urlParams.get("bal")) || 0, verif: "", banned_until: 0 }],
+    // Единое хранилище в localStorage с дефолтными тестовыми товарами, чтобы маркет сразу был заполнен
+    let state = JSON.parse(localStorage.getItem('fp_webapp_standalone_v5')) || {
+        users: [
+            { id: MAIN_ADMIN_ID, name: "kalba", uname: "kalba", bal: 1000, verif: "staff", banned_until: 0 },
+            { id: 999999, name: "CyberSeller", uname: "cyber", bal: 500, verif: "funpay", banned_until: 0 }
+        ],
         admins: [MAIN_ADMIN_ID],
-        listings: [],
+        listings: [
+            { id: 101, category: "Аккаунты", game: "Steam", title: "CS2 Prime Account + CS2", price: 350, amount: 1, photo: "", description: "Личный аккаунт с отлежкой, родная почта.", auto_text: "login:password", seller_id: 999999, active: 1 },
+            { id: 102, category: "Валюта", game: "Telegram", title: "100 Telegram Stars", price: 150, amount: 5, photo: "", description: "Быстрая отправка звезд на ваш аккаунт через подарок.", auto_text: "Промокод отправлен", seller_id: MAIN_ADMIN_ID, active: 1 }
+        ],
         orders: [],
         reviews: []
     };
 
-    if (urlParams.has("bal")) {
-        let u = state.users.find(x => String(x.id) === String(tgUser.id));
-        if (u) u.bal = parseInt(urlParams.get("bal")) || 0;
+    function saveState() {
+        localStorage.setItem('fp_webapp_standalone_v5', JSON.stringify(state));
+        updateTopProfile();
     }
 
     function currentUser() {
         let u = state.users.find(x => String(x.id) === String(tgUser.id));
         if (!u) {
-            u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: 0, verif: "", banned_until: 0 };
+            u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: 1000, verif: "staff", banned_until: 0 };
             state.users.push(u);
+            saveState();
         }
         return u;
-    }
-
-    async function syncWithBackend(manual = false) {
-        try {
-            const res = await fetch(`${API_BASE}/api/state?uid=${tgUser.id}&name=${encodeURIComponent(tgUser.first_name||'')}&uname=${encodeURIComponent(tgUser.username||'')}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.ok) {
-                    state.users = data.users;
-                    state.admins = data.admins;
-                    state.listings = data.listings || [];
-                    state.orders = data.orders || [];
-                    state.reviews = data.reviews || [];
-                    updateTopProfile();
-                    renderMarket();
-                    renderMyListings();
-                    if (manual) showToast("✅ Данные синхронизированы!");
-                    return;
-                }
-            }
-        } catch (e) {}
-        updateTopProfile();
-        renderMarket();
-        renderMyListings();
-        if (manual) showToast(`⭐ Баланс: ${currentUser().bal} ⭐`);
-    }
-
-    async function apiCall(payload) {
-        try {
-            const res = await fetch(`${API_BASE}/api/action`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ uid: tgUser.id, ...payload })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.listings) state.listings = data.listings;
-                if (data.orders) state.orders = data.orders;
-                if (data.reviews) state.reviews = data.reviews;
-                updateTopProfile();
-                renderMarket();
-                renderMyListings();
-                return data;
-            }
-        } catch (e) {}
-        return null;
     }
 
     function showToast(msg) {
@@ -363,7 +317,7 @@
         else if (u.verif === 'funpay') { badge.style.display = 'inline-flex'; badge.innerText = '⭐'; }
         else { badge.style.display = 'none'; }
 
-        const isAdmin = state.admins.map(String).includes(String(u.id)) || urlParams.get("admin") === "1";
+        const isAdmin = state.admins.map(String).includes(String(u.id));
         document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
     }
 
@@ -377,7 +331,7 @@
         if (tabId === 'market') renderMarket();
         if (tabId === 'sell') renderMyListings();
         if (tabId === 'chats') renderSubTab();
-        syncWithBackend();
+        updateTopProfile();
     }
 
     function getSellerPrefix(seller_id) {
@@ -410,7 +364,7 @@
             <div class="card" onclick="openItemCard(${item.id})">
                 <div class="card-photo">
                     <span class="card-cat-badge">${item.game || item.category}</span>
-                    ${item.media_id || item.photo ? `<img src="${item.media_id || item.photo}">` : `<span style="font-size:28px;">📦</span>`}
+                    ${item.photo ? `<img src="${item.photo}">` : `<span style="font-size:28px;">📦</span>`}
                 </div>
                 <div class="card-price">${item.price} ⭐</div>
                 <div class="card-title">${getSellerPrefix(item.seller_id)}${item.title}</div>
@@ -432,7 +386,7 @@
             <div class="card" onclick="openItemCard(${item.id})">
                 <div class="card-photo">
                     <span class="card-cat-badge">${item.amount} шт.</span>
-                    ${item.media_id || item.photo ? `<img src="${item.media_id || item.photo}">` : `<span style="font-size:28px;">📦</span>`}
+                    ${item.photo ? `<img src="${item.photo}">` : `<span style="font-size:28px;">📦</span>`}
                 </div>
                 <div class="card-price">${item.price} ⭐</div>
                 <div class="card-title">${getSellerPrefix(item.seller_id)}${item.title}</div>
@@ -460,7 +414,7 @@
         `);
     }
 
-    async function submitCreateItem() {
+    function submitCreateItem() {
         const category = document.getElementById('ci-cat').value;
         const game = document.getElementById('ci-game').value.trim() || "Общее";
         const title = document.getElementById('ci-title').value.trim();
@@ -474,8 +428,13 @@
         if (/^(⭐|🌟|💫|✨|<emoji)/i.test(title) || /верифицирован|verified|funpay\s*staff/i.test(title)) return showToast("❌ Ошибка в названии!");
         if (/верифицирован|verified|funpay\s*staff|гарант/i.test(description)) return showToast("❌ Ошибка в описании!");
 
-        const res = await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
+        const newItem = { id: Date.now(), category, game, title, price, amount, photo, description, auto_text, seller_id: currentUser().id, active: 1 };
+        state.listings.unshift(newItem);
+        saveState();
+
         closeModal();
+        renderMyListings();
+        renderMarket();
         showToast("✅ Товар успешно создан!");
     }
 
@@ -492,7 +451,7 @@
         const canManage = String(item.seller_id) === String(u.id) || state.admins.map(String).includes(String(u.id));
 
         openModal("Карточка товара", `
-            ${item.media_id || item.photo ? `<img src="${item.media_id || item.photo}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+            ${item.photo ? `<img src="${item.photo}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
             <div style="font-size:18px; font-weight:800; margin-bottom:8px;">${getSellerPrefix(item.seller_id)}${item.title}</div>
             <div style="color:var(--hint); font-size:14px; white-space:pre-wrap; margin-bottom:14px;">${item.description}</div>
             <div class="list-group" style="padding:12px; font-size:14px; line-height:1.7;">
@@ -506,19 +465,27 @@
         `);
     }
 
-    async function deleteItem(itemId) {
-        await apiCall({ action: "delete_item", item_id: itemId });
+    function deleteItem(itemId) {
+        state.listings = state.listings.filter(x => x.id !== itemId);
+        saveState();
         closeModal();
+        renderMarket();
+        renderMyListings();
         showToast("🗑 Товар удален");
     }
 
-    async function buyItem(itemId) {
+    function buyItem(itemId) {
         const item = state.listings.find(x => x.id === itemId);
         const u = currentUser();
-        if (u.bal < item.price) return showToast("❌ Недостаточно средств! Пополните баланс в боте.");
-        
-        const res = await apiCall({ action: "buy_item", item_id: itemId });
-        if (res && !res.ok) return showToast("❌ " + res.error);
+        if (u.bal < item.price) return showToast("❌ Недостаточно средств!");
+
+        u.bal -= item.price;
+        item.amount -= 1;
+        if (item.amount <= 0) item.active = 0;
+
+        const orderId = state.orders.length + 1;
+        state.orders.unshift({ id: orderId, listing_id: item.id, title: item.title, description: item.description, buyer_id: u.id, seller_id: item.seller_id, price: item.price, amount: 1, auto_text: item.auto_text, status: 'pending' });
+        saveState();
 
         closeModal();
         switchTab('chats');
@@ -541,8 +508,10 @@
         `);
     }
 
-    async function reportReview(reviewId) {
-        await apiCall({ action: "report_review", review_id: reviewId });
+    function reportReview(reviewId) {
+        const r = state.reviews.find(x => x.id === reviewId);
+        if (r) r.reported = 1;
+        saveState();
         closeModal();
         showToast("✅ Жалоба отправлена");
     }
@@ -565,10 +534,13 @@
             box.innerHTML = list.map(o => `
                 <div class="list-group" style="padding:14px;">
                     <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:6px;">
-                        <span>Сделка #${o.id}</span>
+                        <span>Сделка #${o.id} — ${o.title}</span>
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
                     <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Статус: <b>${o.status}</b></div>
+                    <div style="font-size:13px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px; margin-bottom:10px;">
+                        🎁 Автовыдача: <code>${o.auto_text}</code>
+                    </div>
                     ${o.status === 'pending' ? `
                         <div style="display:flex; gap:8px; margin-bottom:8px;">
                             <button class="btn success" style="margin:0; padding:10px;" onclick="confirmOrder(${o.id})">✅ Подтвердить</button>
@@ -586,7 +558,7 @@
             box.innerHTML = list.map(o => `
                 <div class="list-group" style="padding:14px;">
                     <div style="display:flex; justify-content:space-between; font-weight:700;">
-                        <span>Сделка #${o.id}</span>
+                        <span>Сделка #${o.id} — ${o.title}</span>
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
                     <div style="font-size:13px; color:var(--hint); margin-top:6px;">Статус: ${o.status}</div>
@@ -597,14 +569,22 @@
         }
     }
 
-    async function confirmOrder(orderId) {
-        await apiCall({ action: "confirm_order", order_id: orderId });
+    function confirmOrder(orderId) {
+        const o = state.orders.find(x => x.id === orderId);
+        if (o && o.status === 'pending') {
+            o.status = 'completed';
+            const s = state.users.find(x => String(x.id) === String(o.seller_id));
+            if (s) s.bal += o.price;
+            saveState();
+        }
         renderSubTab();
         showToast("✅ Заказ подтвержден!");
     }
 
-    async function disputeOrder(orderId) {
-        await apiCall({ action: "dispute_order", order_id: orderId });
+    function disputeOrder(orderId) {
+        const o = state.orders.find(x => x.id === orderId);
+        if (o) o.status = 'disputed';
+        saveState();
         renderSubTab();
         showToast("🚨 Запрос возврата (спор) отправлен!");
     }
@@ -626,12 +606,14 @@
         `);
     }
 
-    async function submitReview(orderId, sellerId) {
+    function submitReview(orderId, sellerId) {
         const rating = parseInt(document.getElementById('rev-rating').value);
         const comment = document.getElementById('rev-text').value.trim() || "Без комментария";
         const anonymous = document.getElementById('rev-anon').checked ? 1 : 0;
         
-        await apiCall({ action: "add_review", order_id: orderId, rating, comment, anonymous });
+        state.reviews.unshift({ id: Date.now(), order_id: orderId, seller_id: sellerId, buyer_id: currentUser().id, rating, comment, anonymous, reported: 0 });
+        saveState();
+
         closeModal();
         renderSubTab();
         showToast("✅ Отзыв опубликован!");
@@ -647,10 +629,9 @@
         `);
     }
 
-    syncWithBackend();
+    updateTopProfile();
     renderMarket();
     renderMyListings();
-    setInterval(() => syncWithBackend(), 5000);
 </script>
 </body>
 </html>
