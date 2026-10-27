@@ -183,14 +183,12 @@
     </header>
 
     <main>
-        <!-- 1. МАРКЕТ -->
         <div id="tab-market" class="tab active">
             <input type="text" id="market-search" class="input" placeholder="🔍 Поиск по названию или игре..." oninput="renderMarket()">
             <h2>Каталог сделок</h2>
             <div class="grid" id="market-list"></div>
         </div>
 
-        <!-- 2. СДЕЛКИ И ЧАТЫ -->
         <div id="tab-chats" class="tab">
             <div class="sub-tabs">
                 <div class="sub-tab active" id="st-purchases" onclick="switchSubTab('purchases')">🛍 Покупки</div>
@@ -200,7 +198,6 @@
             <div id="subtab-content"></div>
         </div>
 
-        <!-- 3. ПРОДАЖА / МОИ ТОВАРЫ -->
         <div id="tab-sell" class="tab">
             <button class="btn" onclick="openCreateItemModal()">
                 <span style="font-size: 20px;">+</span> Создать товар
@@ -209,7 +206,6 @@
             <div class="grid" id="my-list"></div>
         </div>
 
-        <!-- 4. НАСТРОЙКИ -->
         <div id="tab-settings" class="tab">
             <h2>Настройки</h2>
             <div class="list-group">
@@ -220,7 +216,6 @@
             </div>
         </div>
 
-        <!-- 5. ПРОФИЛЬ -->
         <div id="tab-profile" class="tab">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -233,7 +228,6 @@
             </div>
         </div>
 
-        <!-- 6. АДМИН ПАНЕЛЬ (Полные 12 кнопок) -->
         <div id="tab-admin" class="tab">
             <h2 style="color: var(--accent);">🛠 Админ-панель</h2>
             
@@ -563,7 +557,6 @@
         showToast("✅ Покупка успешна!");
     }
 
-    // Отзывы продавца
     function openSellerReviews(sellerId, sellerName) {
         const revs = state.reviews.filter(r => String(r.seller_id) === String(sellerId) && Number(r.reported) === 0);
         const avg = revs.length ? (revs.reduce((a,b)=>a+Number(b.rating),0)/revs.length).toFixed(1) : "5.0";
@@ -646,7 +639,7 @@
     async function confirmOrder(orderId) {
         await apiCall({ action: "confirm_order", order_id: orderId });
         renderSubTab();
-        showToast("✅ Заказ подтвержден, выплачено продавцу!");
+        showToast("✅ Заказ подтвержден!");
     }
 
     async function disputeOrder(orderId) {
@@ -721,8 +714,7 @@
         openOrderChat(orderId);
     }
 
-<script>
-    // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ (Связь с сервером) ====================
+    // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ ====================
     function openAdminStats() {
         const activeLots = state.listings.filter(x => Number(x.active) === 1 && Number(x.amount) > 0).length;
         openModal("📊 Статистика платформы", `
@@ -743,7 +735,7 @@
         const items = sorted.slice(page * perPage, (page + 1) * perPage);
 
         openModal("💰 Балансы юзеров", `
-            <div style="margin-bottom:12px; font-size:14px; color:var(--hint);">Баланс каждого пользователя в системе:</div>
+            <div style="margin-bottom:12px; font-size:14px; color:var(--hint);">Баланс каждого пользователя:</div>
             ${items.map(usr => `
                 <div class="list-group" style="padding:12px; display:flex; justify-content:space-between; margin-bottom:8px;">
                     <span>@${usr.uname || usr.name || usr.id} ${usr.verif ? '('+usr.verif+')' : ''}</span>
@@ -784,68 +776,54 @@
 
     function openAdminManageAdmins() {
         openModal("👥 Управление админами", `
-            <input type="number" id="new-adm-inp" class="input" placeholder="ID пользователя">
-            <button class="btn success" onclick="submitAddAdmin()">Добавить в админы</button>
+            <input type="number" id="adm-new-id" class="input" placeholder="ID пользователя">
+            <button class="btn success" onclick="submitAdminAction('admin_add_admin', {admin_id: document.getElementById('adm-new-id').value})">Добавить админа</button>
         `);
-    }
-    async function submitAddAdmin() {
-        const admin_id = parseInt(document.getElementById('new-adm-inp').value);
-        if (!admin_id) return showToast("❌ Введите ID");
-        await apiCall({ action: "admin_add_admin", admin_id });
-        closeModal(); showToast("✅ Админ добавлен");
     }
 
     function openAdminBan() {
         openModal("⛔ Отстранить / Разбанить", `
-            <input type="text" id="ban-target" class="input" placeholder="Username (@) или ID">
-            <input type="number" id="ban-mins" class="input" placeholder="Минуты бана (0 — разбан)" value="60">
-            <button class="btn danger" onclick="submitAdminBan()">Применить</button>
+            <input type="text" id="ban-target" class="input" placeholder="Username или ID">
+            <input type="number" id="ban-mins" class="input" placeholder="Минуты (0 - разбан)" value="60">
+            <button class="btn danger" onclick="submitAdminAction('admin_ban', {target: document.getElementById('ban-target').value, minutes: document.getElementById('ban-mins').value})">Применить бан</button>
         `);
-    }
-    async function submitAdminBan() {
-        const target = document.getElementById('ban-target').value.trim();
-        const minutes = parseInt(document.getElementById('ban-mins').value) || 0;
-        const res = await apiCall({ action: "admin_ban", target, minutes });
-        if (res && res.ok) { closeModal(); showToast("✅ Статус бана обновлен"); }
-        else { showToast("❌ Ошибка (пользователь не найден)"); }
     }
 
     function openAdminVerifs() {
         openModal("🛡 Верификации", `
-            <input type="text" id="verif-target" class="input" placeholder="Username (@) или ID">
-            <button class="btn" onclick="submitAdminVerif('staff')">🛡 Выдать «FunPay Staff»</button>
-            <button class="btn" onclick="submitAdminVerif('funpay')">⭐ Выдать «FunPay»</button>
-            <button class="btn danger" onclick="submitAdminVerif('')">🗑 Снять верификацию</button>
+            <input type="text" id="verif-target" class="input" placeholder="Username или ID">
+            <button class="btn" onclick="submitAdminAction('admin_verif', {target: document.getElementById('verif-target').value, verif_type: 'staff'})">🛡 Выдать Staff</button>
+            <button class="btn" onclick="submitAdminAction('admin_verif', {target: document.getElementById('verif-target').value, verif_type: 'funpay'})">⭐ Выдать FunPay</button>
+            <button class="btn danger" onclick="submitAdminAction('admin_verif', {target: document.getElementById('verif-target').value, verif_type: ''})">🗑 Снять галочку</button>
         `);
-    }
-    async function submitAdminVerif(verif_type) {
-        const target = document.getElementById('verif-target').value.trim();
-        if (!target) return showToast("❌ Укажите пользователя");
-        const res = await apiCall({ action: "admin_verif", target, verif_type });
-        if (res && res.ok) { closeModal(); showToast("✅ Верификация обновлена!"); }
-        else { showToast("❌ Пользователь не найден"); }
     }
 
     function openAdminStars() {
         openModal("⭐ Выдать / Забрать звезды", `
-            <input type="text" id="stars-target" class="input" placeholder="Username (@) или ID">
-            <input type="number" id="stars-diff" class="input" placeholder="Сумма (например 100 или -50)">
-            <button class="btn" onclick="submitAdminStars()">Изменить баланс</button>
+            <input type="text" id="stars-target" class="input" placeholder="Username или ID">
+            <input type="number" id="stars-diff" class="input" placeholder="Сумма (+ / -)">
+            <button class="btn" onclick="submitAdminAction('admin_stars', {target: document.getElementById('stars-target').value, diff: document.getElementById('stars-diff').value})">Изменить баланс</button>
         `);
     }
-    async function submitAdminStars() {
-        const target = document.getElementById('stars-target').value.trim();
-        const diff = parseInt(document.getElementById('stars-diff').value) || 0;
-        const res = await apiCall({ action: "admin_stars", target, diff });
-        if (res && res.ok) { closeModal(); showToast("✅ Баланс пользователя изменен!"); }
-        else { showToast("❌ Ошибка"); }
+
+    async function submitAdminAction(action, payload) {
+        const res = await apiCall({ action, ...payload });
+        if (res && res.ok) {
+            closeModal();
+            showToast("✅ Успешно выполнено!");
+        } else {
+            showToast("❌ Ошибка выполнения");
+        }
     }
 
-    function openAdminDisputes() { openModal("⚖️ Управление спорами", `<div class="empty-state">Нет активных споров</div>`); }
-    function openAdminReports() { openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Нет жалоб</div>`); }
+    function openAdminDisputes() { openModal("⚖️ Споры", `<div class="empty-state">Нет активных споров</div>`); }
+    function openAdminReports() { openModal("🚨 Жалобы", `<div class="empty-state">Нет жалоб</div>`); }
     function openAdminFakeReview() { openModal("⭐ Накрутка отзывов", `<input type="text" class="input" placeholder="Username"><button class="btn" onclick="closeModal();showToast('Отзыв накручен')">Накрутить</button>`); }
     function openAdminDelReview() { openModal("🗑 Удалить отзыв", `<input type="text" class="input" placeholder="Username"><button class="btn danger" onclick="closeModal();showToast('Удалено')">Удалить</button>`); }
-    function openAdminBroadcast(type) { openModal(type==='update'?"📢 Обновление":"📢 Рассылка", `<textarea class="input" placeholder="Текст..."></textarea><button class="btn" onclick="closeModal();showToast('Рассылка отправлена')">Отправить</button>`); }
+    function openAdminBroadcast(type) { openModal(type==='update'?"📢 Обновление":"📢 Рассылка", `<textarea class="input" placeholder="Текст..."></textarea><button class="btn" onclick="closeModal();showToast('Отправлено')">Отправить</button>`); }
+
+    syncWithBackend();
+    setInterval(() => syncWithBackend(), 3000);
 </script>
 </body>
 </html>
