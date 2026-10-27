@@ -103,7 +103,7 @@
             </button>
             <h2 style="margin: 16px 0; font-size: 20px; font-weight: 700;">Каталог</h2>
             <div class="grid" id="market-list">
-                <div class="empty-state"><span>🛒</span>Загрузка маркета...</div>
+                <div class="empty-state"><span>🛒</span>В маркете пока нет товаров.</div>
             </div>
         </div>
 
@@ -112,7 +112,7 @@
             <h2 style="margin-bottom: 16px; font-size: 20px;">Мои сделки</h2>
             <div class="list-group">
                 <div class="list-item" onclick="sendToBot('my_orders')">
-                    <div class="list-item-title"><span class="list-icon">📦</span> Все мои сделки (Покупки/Продажи)</div>
+                    <div class="list-item-title"><span class="list-icon">📦</span> Все мои покупки и продажи</div>
                     <span style="color: var(--hint);">›</span>
                 </div>
             </div>
@@ -162,7 +162,7 @@
             <div class="profile-header">
                 <div class="avatar">👤</div>
                 <div class="username"><span id="username-display">Ник</span><div class="verified">✔</div></div>
-                <div class="balance-badge" onclick="sendToBot('check_bal')">Баланс: Загрузка ⭐</div>
+                <div class="balance-badge" onclick="sendToBot('check_bal')">Управление балансом ⭐</div>
             </div>
             
             <div class="grid" style="margin-bottom: 16px;">
@@ -182,7 +182,7 @@
             </div>
         </div>
 
-        <!-- 6. АДМИН ПАНЕЛЬ (Полная интеграция с app.py) -->
+        <!-- 6. АДМИН ПАНЕЛЬ (Полный функционал) -->
         <div id="tab-admin" class="tab">
             <h2 style="color: var(--danger); margin-bottom: 16px;">🛡 Админ Панель</h2>
             
@@ -234,7 +234,7 @@
                     <div class="list-item-title"><span class="list-icon">🗑</span> Удалить отзыв</div><span style="color: var(--hint);">›</span>
                 </div>
                 <div class="list-item" onclick="sendToBot('admin_broadcast')">
-                    <div class="list-item-title"><span class="list-icon">📢</span> Рассылка</div><span style="color: var(--hint);">›</span>
+                    <div class="list-item-title"><span class="list-icon">📢</span> Рассылка всем</div><span style="color: var(--hint);">›</span>
                 </div>
                 <div class="list-item" onclick="sendToBot('admin_update_start')">
                     <div class="list-item-title"><span class="list-icon">🔔</span> Создать обновление</div><span style="color: var(--hint);">›</span>
@@ -260,11 +260,12 @@
     tg.expand(); 
     tg.ready();
 
-    // Отправка команды в Python-бота
+    // Функция отправки данных в Telegram бота
     function sendToBot(command) {
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        // Эта функция отправляет данные боту. Бот примет их в on_msg(m), если вы добавите прослушивание web_app_data,
-        // Либо вызовет нужный коллбэк. WebApp при этом закроется, и бот пришлет меню.
+        
+        // Отправка невидимого сигнала боту. WebApp при этом закроется (если бот умеет его читать).
+        // Если вы в тестовом Dev-боте без бэкенда, WebApp просто закроется.
         tg.sendData(command);
     }
 
@@ -283,10 +284,6 @@
         document.getElementById('tab-' + tabId).classList.add('active');
         document.getElementById('nav-' + tabId).classList.add('active');
     }
-
-    setTimeout(() => {
-        document.getElementById('market-list').innerHTML = `<div class="empty-state"><span>🤷‍♂️</span>В маркете пока нет товаров. Используйте кнопку "Поиск".</div>`;
-    }, 800);
 </script>
 
 </body>
