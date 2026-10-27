@@ -219,7 +219,7 @@
                     <span id="user-verif-badge" class="verified" style="display:none;">✔</span>
                 </div>
                 <div style="font-size: 13px; color: var(--hint); margin-bottom: 6px;">ID: <code id="userid-display">0</code></div>
-                <button class="btn secondary" style="width:auto; padding:6px 14px; font-size:13px;" onclick="syncWithBackend(true)">🔄 Синхронизировать баланс</button>
+                <button class="btn secondary" style="width:auto; padding:6px 14px; font-size:13px;" onclick="syncWithBackend(true)">🔄 Синхронизировать данные</button>
             </div>
         </div>
 
@@ -266,8 +266,7 @@
 
     const API_BASE = urlParams.get("api") || "";
 
-    // Загружаем состояние с поддержкой localStorage по умолчанию
-    let state = JSON.parse(localStorage.getItem('fp_webapp_local_v4')) || {
+    let state = {
         users: [{ id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: parseInt(urlParams.get("bal")) || 0, verif: "", banned_until: 0 }],
         admins: [MAIN_ADMIN_ID],
         listings: [],
@@ -280,17 +279,11 @@
         if (u) u.bal = parseInt(urlParams.get("bal")) || 0;
     }
 
-    function saveState() {
-        localStorage.setItem('fp_webapp_local_v4', JSON.stringify(state));
-        updateTopProfile();
-    }
-
     function currentUser() {
         let u = state.users.find(x => String(x.id) === String(tgUser.id));
         if (!u) {
             u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: 0, verif: "", banned_until: 0 };
             state.users.push(u);
-            saveState();
         }
         return u;
     }
@@ -300,20 +293,24 @@
             const res = await fetch(`${API_BASE}/api/state?uid=${tgUser.id}&name=${encodeURIComponent(tgUser.first_name||'')}&uname=${encodeURIComponent(tgUser.username||'')}`);
             if (res.ok) {
                 const data = await res.json();
-                if (data.ok && data.listings && data.listings.length > 0) {
+                if (data.ok) {
                     state.users = data.users;
                     state.admins = data.admins;
-                    state.listings = data.listings;
-                    state.orders = data.orders;
-                    state.reviews = data.reviews;
-                    saveState();
+                    state.listings = data.listings || [];
+                    state.orders = data.orders || [];
+                    state.reviews = data.reviews || [];
+                    updateTopProfile();
+                    renderMarket();
+                    renderMyListings();
+                    if (manual) showToast("✅ Данные синхронизированы!");
+                    return;
                 }
             }
         } catch (e) {}
         updateTopProfile();
         renderMarket();
         renderMyListings();
-        if (manual) showToast("✅ Данные обновлены!");
+        if (manual) showToast(`⭐ Баланс: ${currentUser().bal} ⭐`);
     }
 
     async function apiCall(payload) {
@@ -325,7 +322,12 @@
             });
             if (res.ok) {
                 const data = await res.json();
-                await syncWithBackend();
+                if (data.listings) state.listings = data.listings;
+                if (data.orders) state.orders = data.orders;
+                if (data.reviews) state.reviews = data.reviews;
+                updateTopProfile();
+                renderMarket();
+                renderMyListings();
                 return data;
             }
         } catch (e) {}
@@ -473,15 +475,7 @@
         if (/верифицирован|verified|funpay\s*staff|гарант/i.test(description)) return showToast("❌ Ошибка в описании!");
 
         const res = await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
-        
-        // Локальное сохранение на случай отсутствия ответа сервера
-        const newItem = { id: Date.now(), category, game, title, price, amount, photo, description, auto_text, seller_id: currentUser().id, active: 1 };
-        state.listings.unshift(newItem);
-        saveState();
-
         closeModal();
-        renderMyListings();
-        renderMarket();
         showToast("✅ Товар успешно создан!");
     }
 
@@ -514,12 +508,7 @@
 
     async function deleteItem(itemId) {
         await apiCall({ action: "delete_item", item_id: itemId });
-        const item = state.listings.find(x => x.id === itemId);
-        if (item) item.active = 0;
-        saveState();
         closeModal();
-        renderMarket();
-        renderMyListings();
         showToast("🗑 Товар удален");
     }
 
@@ -529,13 +518,7 @@
         if (u.bal < item.price) return showToast("❌ Недостаточно средств! Пополните баланс в боте.");
         
         const res = await apiCall({ action: "buy_item", item_id: itemId });
-        
-        u.bal -= item.price;
-        item.amount -= 1;
-        if (item.amount <= 0) item.active = 0;
-        const orderId = state.orders.length + 1;
-        state.orders.unshift({ id: orderId, listing_id: item.id, title: item.title, description: item.description, buyer_id: u.id, seller_id: item.seller_id, price: item.price, amount: 1, auto_text: item.auto_text, status: 'pending' });
-        saveState();
+        if (res && !res.ok) return showToast("❌ " + res.error);
 
         closeModal();
         switchTab('chats');
@@ -560,9 +543,6 @@
 
     async function reportReview(reviewId) {
         await apiCall({ action: "report_review", review_id: reviewId });
-        const r = state.reviews.find(x => x.id === reviewId);
-        if (r) r.reported = 1;
-        saveState();
         closeModal();
         showToast("✅ Жалоба отправлена");
     }
@@ -619,22 +599,12 @@
 
     async function confirmOrder(orderId) {
         await apiCall({ action: "confirm_order", order_id: orderId });
-        const o = state.orders.find(x => x.id === orderId);
-        if (o && o.status === 'pending') {
-            o.status = 'completed';
-            const s = state.users.find(x => String(x.id) === String(o.seller_id));
-            if (s) s.bal += o.price;
-            saveState();
-        }
         renderSubTab();
         showToast("✅ Заказ подтвержден!");
     }
 
     async function disputeOrder(orderId) {
         await apiCall({ action: "dispute_order", order_id: orderId });
-        const o = state.orders.find(x => x.id === orderId);
-        if (o) o.status = 'disputed';
-        saveState();
         renderSubTab();
         showToast("🚨 Запрос возврата (спор) отправлен!");
     }
@@ -662,9 +632,6 @@
         const anonymous = document.getElementById('rev-anon').checked ? 1 : 0;
         
         await apiCall({ action: "add_review", order_id: orderId, rating, comment, anonymous });
-        state.reviews.unshift({ id: Date.now(), order_id: orderId, seller_id: sellerId, buyer_id: currentUser().id, rating, comment, anonymous, reported: 0 });
-        saveState();
-
         closeModal();
         renderSubTab();
         showToast("✅ Отзыв опубликован!");
