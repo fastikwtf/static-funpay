@@ -6,7 +6,6 @@
     <title>FunPay WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Цвета автоматически подстраиваются под тему Telegram (темную/светлую) */
         :root {
             --bg: var(--tg-theme-bg-color, #121212);
             --sec-bg: var(--tg-theme-secondary-bg-color, #1c1c1d);
@@ -15,423 +14,278 @@
             --accent: var(--tg-theme-button-color, #0a84ff);
             --accent-text: var(--tg-theme-button-text-color, #ffffff);
             --danger: #ff453a;
+            --success: #32d74b;
             --border: rgba(128, 128, 128, 0.2);
             --radius: 14px;
         }
 
-        /* Фиксация окна для WebApp */
         html, body {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100%; 
-            height: 100%;
-            margin: 0; padding: 0;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg); color: var(--text);
             -webkit-tap-highlight-color: transparent;
         }
 
         .app-container {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+            display: flex; flex-direction: column; width: 100%;
             height: var(--tg-viewport-stable-height, 100vh);
         }
 
-        /* Стильная шапка */
         header {
-            flex-shrink: 0;
-            height: 54px;
-            background-color: var(--sec-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
-            border-bottom: 1px solid var(--border);
-            letter-spacing: -0.5px;
+            flex-shrink: 0; height: 54px; background-color: var(--sec-bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border);
             z-index: 10;
         }
         header span { color: var(--accent); }
 
-        /* Контентная часть */
-        main {
-            flex-grow: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 16px;
-            padding-bottom: 24px;
-        }
-
-        .tab { display: none; animation: fade 0.25s ease; }
+        main { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 24px; }
+        .tab { display: none; animation: fade 0.2s ease; }
         .tab.active { display: block; }
-        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Красивые кнопки */
         .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            background: var(--accent);
-            color: var(--accent-text);
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.1s;
-            margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: center; width: 100%;
+            background: var(--accent); color: var(--accent-text); border: none;
+            padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
+            cursor: pointer; transition: transform 0.1s; margin-bottom: 16px; gap: 8px;
         }
         .btn:active { transform: scale(0.97); }
+        .btn.secondary { background: var(--sec-bg); color: var(--text); border: 1px solid var(--border); }
 
-        /* Списки в стиле iOS/Telegram */
-        .list-group {
-            background-color: var(--sec-bg);
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
+        .list-group { background-color: var(--sec-bg); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border); }
         .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; font-size: 16px; font-weight: 500; border-bottom: 1px solid var(--border);
+            cursor: pointer; transition: background 0.2s;
         }
         .list-item:active { background-color: rgba(128, 128, 128, 0.1); }
         .list-item:last-child { border-bottom: none; }
         .list-item-title { display: flex; align-items: center; gap: 12px; }
-        .list-icon { font-size: 20px; }
+        .list-icon { font-size: 20px; width: 24px; text-align: center; }
 
-        /* Тумблеры (Switch) */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px; height: 30px;
-        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(128, 128, 128, 0.3);
-            transition: .3s; border-radius: 30px;
-        }
-        .slider:before {
-            position: absolute; content: "";
-            height: 26px; width: 26px;
-            left: 2px; bottom: 2px;
-            background-color: white;
-            transition: .3s; border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); transition: .3s; border-radius: 30px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Сетка товаров */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card {
-            background-color: var(--sec-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--border);
-        }
-        .card-img {
-            background: rgba(0, 0, 0, 0.1);
-            aspect-ratio: 4/3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--hint);
-            font-size: 14px;
-        }
-        .card-price {
-            padding: 8px 10px 4px;
-            font-weight: 800;
-            font-size: 15px;
-            color: var(--text);
-        }
-        .card-title {
-            padding: 0 10px 10px;
-            font-size: 13px;
-            color: var(--hint);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Профиль */
-        .profile-header {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px 0; margin-bottom: 16px;
-        }
-        .avatar {
-            width: 100px; height: 100px;
-            border-radius: 50%;
-            background-color: var(--sec-bg);
-            border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; margin-bottom: 12px;
-        }
-        .username { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .verified {
-            background: var(--accent); color: var(--accent-text);
-            width: 20px; height: 20px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-        }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .stat-card {
-            background: var(--sec-bg); border-radius: var(--radius);
-            padding: 16px; display: flex; flex-direction: column; align-items: center;
-        }
-        .stat-val { font-size: 18px; font-weight: 800; }
-        .stat-label { font-size: 12px; color: var(--hint); margin-top: 4px; }
-
-        /* Пустые состояния */
-        .empty-state {
-            grid-column: 1 / -1;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 40px 20px; color: var(--hint); text-align: center; font-size: 15px; font-weight: 500;
-        }
+        .empty-state { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--hint); text-align: center; font-size: 15px; font-weight: 500; }
         .empty-state span { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
-        /* Нижнее навигационное меню */
-        nav {
-            flex-shrink: 0;
-            height: calc(56px + env(safe-area-inset-bottom));
-            display: flex;
-            background-color: var(--sec-bg);
-            border-top: 1px solid var(--border);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item {
-            flex: 1;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: var(--hint);
-            cursor: pointer;
-            transition: color 0.2s;
-            gap: 4px;
-        }
+        .profile-header { display: flex; flex-direction: column; align-items: center; padding: 10px 0 20px; }
+        .avatar { width: 90px; height: 90px; border-radius: 50%; background-color: var(--sec-bg); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 12px; }
+        .username { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .verified { background: var(--accent); color: var(--accent-text); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .balance-badge { background: rgba(245, 166, 35, 0.2); color: #f5a623; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 16px; margin-bottom: 15px; }
+
+        nav { flex-shrink: 0; height: calc(56px + env(safe-area-inset-bottom)); display: flex; background-color: var(--sec-bg); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint); cursor: pointer; transition: color 0.2s; gap: 4px; }
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 22px; }
         .nav-text { font-size: 10px; font-weight: 600; }
-
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <!-- Шапка -->
-    <header>
-        Fun<span>Pay</span>
-    </header>
+    <header>Fun<span>Pay</span></header>
 
-    <!-- Основной контент -->
     <main>
         
-        <!-- 1. Вкладка: Маркет -->
+        <!-- 1. МАРКЕТ -->
         <div id="tab-market" class="tab active">
-            <h2 style="margin-bottom: 16px; font-size: 20px; font-weight: 700;">Каталог товаров</h2>
+            <button class="btn secondary" onclick="sendToBot('search_start')">
+                🔍 Поиск товаров
+            </button>
+            <h2 style="margin: 16px 0; font-size: 20px; font-weight: 700;">Каталог</h2>
             <div class="grid" id="market-list">
-                <div class="empty-state">
-                    <span>🛒</span>
-                    Загрузка маркета...
-                </div>
+                <div class="empty-state"><span>🛒</span>Загрузка маркета...</div>
             </div>
         </div>
 
-        <!-- 2. Вкладка: Чаты и Покупки -->
+        <!-- 2. МОИ СДЕЛКИ (ЧАТЫ) -->
         <div id="tab-chats" class="tab">
+            <h2 style="margin-bottom: 16px; font-size: 20px;">Мои сделки</h2>
             <div class="list-group">
-                <div class="list-item" onclick="tg.sendData('my_purchases')">
-                    <div class="list-item-title"><span class="list-icon">🛍️</span> Мои покупки</div>
-                    <span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="tg.sendData('my_sales')">
-                    <div class="list-item-title"><span class="list-icon">💰</span> Мои продажи</div>
+                <div class="list-item" onclick="sendToBot('my_orders')">
+                    <div class="list-item-title"><span class="list-icon">📦</span> Все мои сделки (Покупки/Продажи)</div>
                     <span style="color: var(--hint);">›</span>
                 </div>
             </div>
-
-            <h2 style="margin: 24px 0 12px; font-size: 18px;">Активные чаты</h2>
             <div class="empty-state" style="padding-top: 20px;">
-                <span>💬</span>
-                У вас нет активных диалогов
+                <span>💬</span>Для продолжения общения перейдите в сделку и нажмите "Чат"
             </div>
         </div>
 
-        <!-- 3. Вкладка: Sell (Мои товары) -->
+        <!-- 3. SELL (МОИ ТОВАРЫ) -->
         <div id="tab-sell" class="tab">
-            <button class="btn" onclick="tg.sendData('create_item')">
-                <span style="font-size: 20px; margin-right: 8px;">+</span> Создать товар
+            <button class="btn" onclick="sendToBot('sell_start')">
+                <span style="font-size: 20px;">+</span> Выставить товар
             </button>
             <h2 style="margin: 24px 0 12px; font-size: 18px;">Мои активные лоты</h2>
             <div class="grid" id="my-list">
-                <div class="empty-state">
-                    <span>📦</span>
-                    У вас пока нет активных товаров
-                </div>
+                <div class="empty-state"><span>📦</span>У вас пока нет активных товаров</div>
             </div>
         </div>
 
-        <!-- 4. Вкладка: Настройки -->
+        <!-- 4. НАСТРОЙКИ -->
         <div id="tab-settings" class="tab">
-            
+            <h2 style="margin-bottom: 16px; font-size: 20px;">Настройки</h2>
             <div class="list-group">
-                <!-- Конфиденциальность -->
                 <div class="list-item">
                     <div class="list-item-title"><span class="list-icon">🔒</span> Скрытный режим</div>
                     <label class="switch"><input type="checkbox"><span class="slider"></span></label>
                 </div>
-                
-                <!-- Настройки чатов -->
                 <div class="list-item">
-                    <div class="list-item-title"><span class="list-icon">💬</span> Авто-отправка товара</div>
+                    <div class="list-item-title"><span class="list-icon">💬</span> Авто-отправка</div>
                     <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
                 </div>
             </div>
-
             <div class="list-group">
-                <!-- Поддержка -->
+                <div class="list-item" onclick="sendToBot('support_start')">
+                    <div class="list-item-title"><span class="list-icon">🆘</span> Написать в поддержку</div>
+                    <span style="color: var(--hint);">›</span>
+                </div>
                 <div class="list-item" onclick="tg.openLink('https://staticgram.top/kalba')">
-                    <div class="list-item-title"><span class="list-icon">🆘</span> Поддержка (@kalba)</div>
+                    <div class="list-item-title"><span class="list-icon">👨‍💻</span> Контакт админа (@kalba)</div>
                     <span style="color: var(--hint); font-size: 20px;">↗</span>
                 </div>
             </div>
         </div>
 
-        <!-- 5. Вкладка: Профиль -->
+        <!-- 5. ПРОФИЛЬ -->
         <div id="tab-profile" class="tab">
             <div class="profile-header">
                 <div class="avatar">👤</div>
-                <div class="username">
-                    <span id="username-display">Ник</span>
-                    <div class="verified">✔</div>
-                </div>
+                <div class="username"><span id="username-display">Ник</span><div class="verified">✔</div></div>
+                <div class="balance-badge" onclick="sendToBot('check_bal')">Баланс: Загрузка ⭐</div>
             </div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-val">5.0 ⭐</div>
-                    <div class="stat-label">Рейтинг продавца</div>
+            <div class="grid" style="margin-bottom: 16px;">
+                <button class="btn" style="margin:0; background: var(--success);" onclick="sendToBot('deposit_action')">📥 Пополнить</button>
+                <button class="btn secondary" style="margin:0;" onclick="sendToBot('withdraw_action')">📤 Вывести</button>
+            </div>
+
+            <div class="list-group">
+                <div class="list-item" onclick="sendToBot('transfer_action')">
+                    <div class="list-item-title"><span class="list-icon">💸</span> Перевести звезды</div>
+                    <span style="color: var(--hint);">›</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-val">4.9 ⭐</div>
-                    <div class="stat-label">Рейтинг покупателя</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val">0</div>
-                    <div class="stat-label">Продаж</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val">0</div>
-                    <div class="stat-label">Покупок</div>
+                <div class="list-item" onclick="sendToBot('tx_history')">
+                    <div class="list-item-title"><span class="list-icon">📜</span> История операций</div>
+                    <span style="color: var(--hint);">›</span>
                 </div>
             </div>
         </div>
 
-        <!-- 6. Вкладка: Админ панель -->
+        <!-- 6. АДМИН ПАНЕЛЬ (Полная интеграция с app.py) -->
         <div id="tab-admin" class="tab">
-            <h2 style="color: var(--danger); margin-bottom: 16px;">🛡 Системное управление</h2>
+            <h2 style="color: var(--danger); margin-bottom: 16px;">🛡 Админ Панель</h2>
             
+            <!-- Основное -->
             <div class="list-group">
-                <div class="list-item" onclick="tg.sendData('admin_users')">
-                    <div class="list-item-title"><span class="list-icon">👥</span> Пользователи и баны</div>
-                    <span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="sendToBot('admin_order_log_start')">
+                    <div class="list-item-title"><span class="list-icon">📋</span> Логи по номеру сделки</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="tg.sendData('admin_stars')">
-                    <div class="list-item-title"><span class="list-icon">⭐</span> Выдача звезд</div>
-                    <span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="sendToBot('admin_stats')">
+                    <div class="list-item-title"><span class="list-icon">📊</span> Статистика платформы</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="tg.sendData('admin_logs')">
-                    <div class="list-item-title"><span class="list-icon">📋</span> Логи сделок</div>
-                    <span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="sendToBot('admin_users_bal:0')">
+                    <div class="list-item-title"><span class="list-icon">💰</span> Балансы юзеров</div><span style="color: var(--hint);">›</span>
+                </div>
+            </div>
+
+            <!-- Управление пользователями -->
+            <div class="list-group">
+                <div class="list-item" onclick="sendToBot('admin_manage_admins')">
+                    <div class="list-item-title"><span class="list-icon">👥</span> Управление админами</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_ban_start')">
+                    <div class="list-item-title"><span class="list-icon">⛔</span> Отстранить / Разбанить</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_verifs')">
+                    <div class="list-item-title"><span class="list-icon">🛡</span> Управление верификациями</div><span style="color: var(--hint);">›</span>
+                </div>
+            </div>
+
+            <!-- Экономика и отзывы -->
+            <div class="list-group">
+                <div class="list-item" onclick="sendToBot('admin_stars_start')">
+                    <div class="list-item-title"><span class="list-icon">⭐</span> Выдать / Забрать звезды</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_disputes:0')">
+                    <div class="list-item-title"><span class="list-icon">⚖️</span> Управление спорами</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_reviews_reports:0')">
+                    <div class="list-item-title"><span class="list-icon">🚨</span> Жалобы на отзывы</div><span style="color: var(--hint);">›</span>
+                </div>
+            </div>
+
+            <!-- Накрутка и рассылка -->
+            <div class="list-group">
+                <div class="list-item" onclick="sendToBot('admin_fake_review_start')">
+                    <div class="list-item-title"><span class="list-icon">🎭</span> Накрутка отзывов</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_del_review_start')">
+                    <div class="list-item-title"><span class="list-icon">🗑</span> Удалить отзыв</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_broadcast')">
+                    <div class="list-item-title"><span class="list-icon">📢</span> Рассылка</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="sendToBot('admin_update_start')">
+                    <div class="list-item-title"><span class="list-icon">🔔</span> Создать обновление</div><span style="color: var(--hint);">›</span>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Нижнее меню -->
+    <!-- Навигация -->
     <nav>
-        <div class="nav-item active" id="nav-market" onclick="switchTab('market')">
-            <div class="nav-icon">🛒</div>
-            <div class="nav-text">Маркет</div>
-        </div>
-        <div class="nav-item" id="nav-chats" onclick="switchTab('chats')">
-            <div class="nav-icon">💬</div>
-            <div class="nav-text">Чаты</div>
-        </div>
-        <div class="nav-item" id="nav-sell" onclick="switchTab('sell')">
-            <div class="nav-icon">📦</div>
-            <div class="nav-text">Sell</div>
-        </div>
-        <div class="nav-item" id="nav-settings" onclick="switchTab('settings')">
-            <div class="nav-icon">⚙️</div>
-            <div class="nav-text">Настройки</div>
-        </div>
-        <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
-            <div class="nav-icon">👤</div>
-            <div class="nav-text">Профиль</div>
-        </div>
-        <!-- Кнопка админки (скрыта для обычных юзеров) -->
-        <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin')">
-            <div class="nav-icon">🛡️</div>
-            <div class="nav-text">Админ</div>
-        </div>
+        <div class="nav-item active" id="nav-market" onclick="switchTab('market')"><div class="nav-icon">🛒</div><div class="nav-text">Маркет</div></div>
+        <div class="nav-item" id="nav-chats" onclick="switchTab('chats')"><div class="nav-icon">💬</div><div class="nav-text">Сделки</div></div>
+        <div class="nav-item" id="nav-sell" onclick="switchTab('sell')"><div class="nav-icon">📦</div><div class="nav-text">Товары</div></div>
+        <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-text">Настройки</div></div>
+        <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><div class="nav-icon">👤</div><div class="nav-text">Профиль</div></div>
+        <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin')"><div class="nav-icon">🛡️</div><div class="nav-text">Админ</div></div>
     </nav>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    
-    // КРИТИЧЕСКИ ВАЖНО: Разворачивает WebApp на 100% высоты экрана (убирает белые полосы)
     tg.expand(); 
     tg.ready();
 
-    // Проверка на админа
+    // Отправка команды в Python-бота
+    function sendToBot(command) {
+        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        // Эта функция отправляет данные боту. Бот примет их в on_msg(m), если вы добавите прослушивание web_app_data,
+        // Либо вызовет нужный коллбэк. WebApp при этом закроется, и бот пришлет меню.
+        tg.sendData(command);
+    }
+
     const MAIN_ADMIN_ID = "1780243962"; 
     const user = tg.initDataUnsafe?.user || { id: "1780243962", first_name: "Admin" };
-    
     document.getElementById('username-display').innerText = user.first_name || user.username || "Аноним";
 
-    // Открываем кнопку Админки, если ID совпадает
     if (String(user.id) === MAIN_ADMIN_ID) {
         document.getElementById('nav-admin').style.display = 'flex';
     }
 
-    // Логика переключения вкладок
     function switchTab(tabId) {
-        // Легкая вибрация при нажатии на нижнее меню
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-
         document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
         document.getElementById('tab-' + tabId).classList.add('active');
         document.getElementById('nav-' + tabId).classList.add('active');
     }
 
-    // Имитация загрузки из БД
     setTimeout(() => {
-        // Если API бота пока не подключено, мы просто оставляем заглушки
-        document.getElementById('market-list').innerHTML = `
-            <div class="empty-state">
-                <span>🤷‍♂️</span>
-                В маркете пока нет товаров
-            </div>`;
+        document.getElementById('market-list').innerHTML = `<div class="empty-state"><span>🤷‍♂️</span>В маркете пока нет товаров. Используйте кнопку "Поиск".</div>`;
     }, 800);
 </script>
 
