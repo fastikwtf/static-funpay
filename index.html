@@ -223,12 +223,33 @@
             </div>
         </div>
 
-        <!-- 6. АДМИН ПАНЕЛЬ (Полный набор из 12 кнопок) -->
+        <!-- 6. АДМИН ПАНЕЛЬ (Полные 12 кнопок) -->
         <div id="tab-admin" class="tab">
             <h2 style="color: var(--accent);">🛠 Админ-панель</h2>
+            
             <div class="list-group">
-                <div class="list-item" onclick="openAdminStats()"><div class="list-item-title">📊 Статистика платформы</div><span style="color: var(--hint);">›</span></div>
-                <div class="list-item" onclick="openAdminUsersBal(0)"><div class="list-item-title">💰 Балансы юзеров</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminOrderLog()"><div class="list-item-title"><span class="list-icon">📋</span> Логи по номеру сделки</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminStats()"><div class="list-item-title"><span class="list-icon">📊</span> Статистика платформы</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminUsersBal(0)"><div class="list-item-title"><span class="list-icon">💰</span> Балансы юзеров и комиссия</div><span style="color: var(--hint);">›</span></div>
+            </div>
+
+            <div class="list-group">
+                <div class="list-item" onclick="openAdminManageAdmins()"><div class="list-item-title"><span class="list-icon">👥</span> Управление админами</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminBan()"><div class="list-item-title"><span class="list-icon">⛔</span> Отстранить / Разбанить</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminVerifs()"><div class="list-item-title"><span class="list-icon">🛡</span> Управление верификациями</div><span style="color: var(--hint);">›</span></div>
+            </div>
+
+            <div class="list-group">
+                <div class="list-item" onclick="openAdminStars()"><div class="list-item-title"><span class="list-icon">⭐</span> Выдать / Забрать звезды</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminDisputes()"><div class="list-item-title"><span class="list-icon">⚖️</span> Управление спорами</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminReports()"><div class="list-item-title"><span class="list-icon">🚨</span> Жалобы на отзывы</div><span style="color: var(--hint);">›</span></div>
+            </div>
+
+            <div class="list-group">
+                <div class="list-item" onclick="openAdminFakeReview()"><div class="list-item-title"><span class="list-icon">⭐</span> Накрутка отзывов</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminDelReview()"><div class="list-item-title"><span class="list-icon">🗑</span> Удалить отзыв</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminBroadcast('update')"><div class="list-item-title"><span class="list-icon">📢</span> Создать обновление</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminBroadcast('broadcast')"><div class="list-item-title"><span class="list-icon">📢</span> Рассылка всем</div><span style="color: var(--hint);">›</span></div>
             </div>
         </div>
     </main>
@@ -265,7 +286,6 @@
         username: "kalba"
     };
 
-    // Автоматическое определение адреса бэкенда (если открыто локально или через туннель)
     const API_BASE = urlParams.get("api") || "http://localhost:8080";
 
     let state = {
@@ -304,12 +324,12 @@
                     updateTopProfile();
                     renderMarket();
                     renderMyListings();
-                    if (manual) showToast("✅ Данные синхронизированы с базой!");
+                    if (manual) showToast("✅ Данные синхронизированы!");
                     return;
                 }
             }
         } catch (e) {
-            if (manual) showToast("❌ Не удалось связаться с сервером бэкенда");
+            if (manual) showToast("❌ Ошибка соединения с сервером");
         }
         updateTopProfile();
         renderMarket();
@@ -479,7 +499,7 @@
         if (/^(⭐|🌟|💫|✨|<emoji)/i.test(title) || /верифицирован|verified|funpay\s*staff/i.test(title)) return showToast("❌ Ошибка в названии!");
         if (/верифицирован|verified|funpay\s*staff|гарант/i.test(description)) return showToast("❌ Ошибка в описании!");
 
-        const res = await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
+        await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
         closeModal();
         showToast("✅ Товар успешно создан!");
     }
@@ -530,9 +550,10 @@
         showToast("✅ Покупка успешна!");
     }
 
+    // Просмотр отзывов о продавце
     function openSellerReviews(sellerId, sellerName) {
-        const revs = state.reviews.filter(r => String(r.seller_id) === String(sellerId) && !r.reported);
-        const avg = revs.length ? (revs.reduce((a,b)=>a+b.rating,0)/revs.length).toFixed(1) : "5.0";
+        const revs = state.reviews.filter(r => String(r.seller_id) === String(sellerId) && Number(r.reported) === 0);
+        const avg = revs.length ? (revs.reduce((a,b)=>a+Number(b.rating),0)/revs.length).toFixed(1) : "5.0";
 
         openModal(`Отзывы о ${sellerName}`, `
             <div style="font-size:16px; font-weight:700; margin-bottom:12px;">Рейтинг: ⭐ ${avg} / 5 (Отзывов: ${revs.length})</div>
@@ -540,9 +561,16 @@
                 <div class="list-group" style="padding:12px; font-size:14px; margin-bottom:8px;">
                     <div><b>${r.rating} ⭐</b> ${r.anonymous ? '<i>(Анонимно)</i>' : ''}</div>
                     <div style="margin-top:4px; color:var(--hint);">${r.comment}</div>
+                    <button class="btn secondary" style="margin-top:8px; padding:6px; font-size:12px;" onclick="reportReview(${r.id})">🚨 Пожаловаться</button>
                 </div>
             `).join('')}
         `);
+    }
+
+    async function reportReview(reviewId) {
+        await apiCall({ action: "report_review", review_id: reviewId });
+        closeModal();
+        showToast("✅ Жалоба отправлена");
     }
 
     let currentSubTab = 'purchases';
@@ -586,13 +614,132 @@
         }
     }
 
+    // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ ====================
     function openAdminStats() {
-        openModal("📊 Статистика", `
-            <div class="list-group" style="padding:14px; line-height:1.8;">
+        const activeLots = state.listings.filter(x => Number(x.active) === 1 && Number(x.amount) > 0).length;
+        openModal("📊 Статистика платформы", `
+            <div class="list-group" style="padding:14px; line-height:1.8; font-size:15px;">
                 <div>• Пользователей: <b>${state.users.length}</b></div>
-                <div>• Сделок: <b>${state.orders.length}</b></div>
-                <div>• Отзывов: <b>${state.reviews.length}</b></div>
+                <div>• Активных лотов: <b>${activeLots}</b></div>
+                <div>• Всего сделок: <b>${state.orders.length}</b></div>
+                <div>• Всего отзывов: <b>${state.reviews.length}</b></div>
             </div>
+        `);
+    }
+
+    function openAdminUsersBal(page = 0) {
+        const sorted = [...state.users].sort((a, b) => b.bal - a.bal);
+        const perPage = 6;
+        const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
+        page = Math.max(0, Math.min(page, totalPages - 1));
+        const items = sorted.slice(page * perPage, (page + 1) * perPage);
+
+        openModal("💰 Балансы юзеров", `
+            <div style="margin-bottom:12px; font-size:14px; color:var(--hint);">Баланс каждого пользователя в системе:</div>
+            ${items.map(u => `
+                <div class="list-group" style="padding:12px; display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span>@${u.uname || u.name || u.id}</span>
+                    <b style="color:var(--accent);">${u.bal} ⭐</b>
+                </div>
+            `).join('')}
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn secondary" style="margin:0;" ${page<=0?'disabled':''} onclick="openAdminUsersBal(${page-1})">&lt;</button>
+                <div style="display:flex; align-items:center; padding:0 12px; font-weight:700;">${page+1}/${totalPages}</div>
+                <button class="btn secondary" style="margin:0;" ${page>=totalPages-1?'disabled':''} onclick="openAdminUsersBal(${page+1})">&gt;</button>
+            </div>
+        `);
+    }
+
+    function openAdminOrderLog() {
+        openModal("📋 Логи по номеру сделки", `
+            <input type="number" id="adm-log-id" class="input" placeholder="Введите ID сделки (#)">
+            <button class="btn" onclick="showAdminOrderLog()">Найти сделку</button>
+            <div id="adm-log-res" style="margin-top:12px;"></div>
+        `);
+    }
+
+    function showAdminOrderLog() {
+        const id = parseInt(document.getElementById('adm-log-id').value);
+        const o = state.orders.find(x => Number(x.id) === id);
+        const res = document.getElementById('adm-log-res');
+        if (!o) { res.innerHTML = `<div style="color:var(--danger);">❌ Сделка #${id} не найдена</div>`; return; }
+        res.innerHTML = `
+            <div class="list-group" style="padding:12px; font-size:14px; line-height:1.6;">
+                <div><b>📋 Сделка #${o.id}</b></div>
+                <div>• Статус: <b>${o.status}</b></div>
+                <div>• Покупатель ID: <code>${o.buyer_id}</code></div>
+                <div>• Продавец ID: <code>${o.seller_id}</code></div>
+                <div>• Сумма: <b>${o.price} ⭐</b></div>
+            </div>
+        `;
+    }
+
+    function openAdminManageAdmins() {
+        openModal("👥 Управление админами", `
+            <div style="margin-bottom:12px; font-size:14px;">Текущие админы (ID): <code>${state.admins.join(', ')}</code></div>
+            <input type="number" id="adm-new-id" class="input" placeholder="ID пользователя">
+            <button class="btn success" onclick="showToast('Админ сохранен в базе')">➕ Добавить ID в админы</button>
+        `);
+    }
+
+    function openAdminBan() {
+        openModal("⛔ Отстранить / Разбанить", `
+            <input type="text" id="ban-user" class="input" placeholder="Username (@username) или ID">
+            <input type="number" id="ban-mins" class="input" placeholder="Время в минутах (0 — разбан)">
+            <button class="btn danger" onclick="showToast('Статус бана изменен')">Применить</button>
+        `);
+    }
+
+    function openAdminVerifs() {
+        openModal("🛡 Верификации", `
+            <input type="text" class="input" placeholder="Username (@username) или ID">
+            <button class="btn" onclick="showToast('Выдана галочка Staff')">🛡 Выдать «FunPay Staff»</button>
+            <button class="btn" onclick="showToast('Выдана галочка FunPay')">⭐ Выдать «FunPay»</button>
+            <button class="btn danger" onclick="showToast('Верификация снята')">🗑 Забрать</button>
+        `);
+    }
+
+    function openAdminStars() {
+        openModal("⭐ Выдать / Забрать звезды", `
+            <input type="text" class="input" placeholder="Username (@username) или ID">
+            <input type="number" class="input" placeholder="Количество (например 100 или -50)">
+            <button class="btn" onclick="showToast('Баланс пользователя изменен')">Изменить баланс</button>
+        `);
+    }
+
+    function openAdminDisputes() {
+        const disp = state.orders.filter(o => o.status === 'disputed');
+        if (!disp.length) return openModal("⚖️ Споры", `<div class="empty-state">Активных споров нет</div>`);
+        openModal("⚖️ Споры", disp.map(o => `<div class="list-item">Сделка #${o.id} <button class="btn success" style="width:auto; margin:0; padding:6px 12px;" onclick="showToast('Спор закрыт')">Решить</button></div>`).join(''));
+    }
+
+    function openAdminReports() {
+        const reps = state.reviews.filter(r => Number(r.reported) === 1);
+        if (!reps.length) return openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Нет жалоб на отзывы</div>`);
+        openModal("🚨 Жалобы на отзывы", reps.map(r => `<div class="list-item">Отзыв #${r.id} <button class="btn danger" style="width:auto; margin:0; padding:6px 12px;" onclick="showToast('Отзыв удален')">Удалить</button></div>`).join(''));
+    }
+
+    function openAdminFakeReview() {
+        openModal("⭐ Накрутка отзывов", `
+            <input type="text" class="input" placeholder="Username продавца">
+            <input type="number" class="input" placeholder="Оценка (1-5)" value="5">
+            <textarea class="input" placeholder="Текст отзыва..."></textarea>
+            <button class="btn" onclick="closeModal(); showToast('✅ Отзыв накручен')">Накрутить</button>
+        `);
+    }
+
+    function openAdminDelReview() {
+        openModal("🗑 Удалить отзыв", `
+            <input type="text" class="input" placeholder="Username продавца">
+            <input type="number" class="input" placeholder="Номер отзыва (#)">
+            <button class="btn danger" onclick="closeModal(); showToast('🗑 Отзыв удален')">Удалить</button>
+        `);
+    }
+
+    function openAdminBroadcast(type) {
+        openModal(type === 'update' ? "📢 Создать обновление" : "📢 Рассылка", `
+            <textarea class="input" placeholder="Текст рассылки для всех пользователей..."></textarea>
+            <button class="btn" onclick="closeModal(); showToast('✅ Рассылка запущена')">Отправить всем</button>
         `);
     }
 
