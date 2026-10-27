@@ -11,20 +11,21 @@
             --sec-bg: var(--tg-theme-secondary-bg-color, #1c1c1d);
             --text: var(--tg-theme-text-color, #ffffff);
             --hint: var(--tg-theme-hint-color, #8e8e93);
-            --accent: var(--tg-theme-button-color, #0a84ff);
-            --accent-text: var(--tg-theme-button-text-color, #ffffff);
+            --accent: #f5a623;
+            --accent-text: #000000;
             --danger: #ff453a;
             --success: #32d74b;
             --border: rgba(128, 128, 128, 0.2);
             --radius: 14px;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         html, body {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg); color: var(--text);
-            -webkit-tap-highlight-color: transparent;
         }
 
         .app-container {
@@ -34,125 +35,240 @@
 
         header {
             flex-shrink: 0; height: 54px; background-color: var(--sec-bg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border);
-            z-index: 10;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; font-size: 22px; font-weight: 800;
+            border-bottom: 1px solid var(--border); z-index: 10;
         }
-        header span { color: var(--accent); }
+        .header-logo span { color: var(--accent); }
+        .header-bal {
+            font-size: 14px; font-weight: 700; background: rgba(245, 166, 35, 0.15);
+            color: var(--accent); padding: 6px 12px; border-radius: 20px; cursor: pointer;
+        }
 
-        main { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 24px; }
+        main { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 30px; }
         .tab { display: none; animation: fade 0.2s ease; }
         .tab.active { display: block; }
-        @keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 19px; margin: 0 0 14px 0; font-weight: 700; }
 
         .btn {
             display: flex; align-items: center; justify-content: center; width: 100%;
             background: var(--accent); color: var(--accent-text); border: none;
-            padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
-            cursor: pointer; transition: transform 0.1s; margin-bottom: 16px; gap: 8px;
+            padding: 14px; font-size: 16px; font-weight: 700; border-radius: 12px;
+            cursor: pointer; transition: transform 0.1s, opacity 0.2s; margin-bottom: 12px; gap: 8px;
         }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { transform: scale(0.97); opacity: 0.9; }
         .btn.secondary { background: var(--sec-bg); color: var(--text); border: 1px solid var(--border); }
+        .btn.danger { background: var(--danger); color: #fff; }
+        .btn.success { background: var(--success); color: #000; }
+
+        .search-bar {
+            display: flex; gap: 8px; margin-bottom: 16px;
+        }
+        .input {
+            width: 100%; padding: 13px 14px; border-radius: 12px;
+            border: 1px solid var(--border); background: var(--sec-bg);
+            color: var(--text); font-size: 15px; margin-bottom: 12px; outline: none;
+        }
+        .input:focus { border-color: var(--accent); }
+        textarea.input { resize: none; height: 90px; }
 
         .list-group { background-color: var(--sec-bg); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border); }
         .list-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px; font-size: 16px; font-weight: 500; border-bottom: 1px solid var(--border);
-            cursor: pointer; transition: background 0.2s;
+            padding: 15px 16px; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--border);
+            cursor: pointer; transition: background 0.15s;
         }
-        .list-item:active { background-color: rgba(128, 128, 128, 0.1); }
+        .list-item:active { background-color: rgba(128, 128, 128, 0.15); }
         .list-item:last-child { border-bottom: none; }
         .list-item-title { display: flex; align-items: center; gap: 12px; }
         .list-icon { font-size: 20px; width: 24px; text-align: center; }
 
-        .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
+        .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); transition: .3s; border-radius: 30px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); transition: .25s; border-radius: 30px; }
+        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .25s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(20px); }
 
+        /* Сетка карточек (как на твоем макете: Фото / Цена / Название) */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .empty-state { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--hint); text-align: center; font-size: 15px; font-weight: 500; }
-        .empty-state span { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+        .card {
+            background-color: var(--sec-bg); border-radius: 12px; overflow: hidden;
+            display: flex; flex-direction: column; border: 1px solid var(--border);
+            cursor: pointer; transition: transform 0.15s;
+        }
+        .card:active { transform: scale(0.97); }
+        .card-photo {
+            height: 110px; background: rgba(0,0,0,0.25); display: flex;
+            align-items: center; justify-content: center; border-bottom: 1px solid var(--border);
+            overflow: hidden; position: relative;
+        }
+        .card-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .card-cat-badge {
+            position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.65);
+            color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 6px;
+        }
+        .card-price {
+            padding: 8px 10px; font-weight: 800; font-size: 15px;
+            color: var(--accent); border-bottom: 1px solid var(--border);
+        }
+        .card-title {
+            padding: 8px 10px; font-size: 13px; font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
 
-        .profile-header { display: flex; flex-direction: column; align-items: center; padding: 10px 0 20px; }
-        .avatar { width: 90px; height: 90px; border-radius: 50%; background-color: var(--sec-bg); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 12px; }
-        .username { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-        .verified { background: var(--accent); color: var(--accent-text); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .balance-badge { background: rgba(245, 166, 35, 0.2); color: #f5a623; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 16px; margin-bottom: 15px; }
+        .empty-state {
+            grid-column: 1 / -1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 36px 20px;
+            color: var(--hint); text-align: center; font-size: 14px;
+        }
+        .empty-state span { font-size: 38px; margin-bottom: 8px; opacity: 0.6; }
 
-        nav { flex-shrink: 0; height: calc(56px + env(safe-area-inset-bottom)); display: flex; background-color: var(--sec-bg); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint); cursor: pointer; transition: color 0.2s; gap: 4px; }
+        /* Профиль */
+        .profile-header { display: flex; flex-direction: column; align-items: center; padding: 10px 0 18px; }
+        .avatar {
+            width: 86px; height: 86px; border-radius: 50%; background-color: var(--sec-bg);
+            border: 2px solid var(--accent); display: flex; align-items: center;
+            justify-content: center; font-size: 38px; margin-bottom: 10px; overflow: hidden;
+        }
+        .username { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .verified { background: var(--accent); color: #000; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-card { background: var(--sec-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+        .stat-val { font-size: 17px; font-weight: 800; }
+        .stat-lbl { font-size: 12px; color: var(--hint); margin-top: 3px; }
+
+        /* Внутренние вкладки (Покупки / Продажи / Чаты) */
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .sub-tab {
+            flex: 1; padding: 10px; text-align: center; background: var(--sec-bg);
+            border: 1px solid var(--border); border-radius: 10px; font-size: 13px;
+            font-weight: 600; cursor: pointer; color: var(--hint);
+        }
+        .sub-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* Модальное окно (Bottom Sheet / Fullscreen Modal) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 100; display: none;
+            align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; animation: fade 0.15s ease; }
+        .modal-box {
+            width: 100%; max-height: 88vh; background: var(--bg);
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            border-top: 1px solid var(--border); display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 14px 16px; background: var(--sec-bg); border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 17px;
+        }
+        .modal-close {
+            background: rgba(128,128,128,0.2); border: none; color: var(--text);
+            width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer;
+        }
+        .modal-body { padding: 16px; overflow-y: auto; }
+
+        /* Чат внутри модалки */
+        .chat-messages {
+            height: 260px; overflow-y: auto; background: var(--sec-bg);
+            border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .msg-bubble {
+            max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 14px;
+        }
+        .msg-me { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; }
+        .msg-other { align-self: flex-start; background: rgba(128,128,128,0.25); color: var(--text); }
+
+        /* Уведомление (Toast) */
+        .toast {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+            background: #2c2c2e; color: #fff; padding: 10px 18px; border-radius: 25px;
+            font-size: 14px; font-weight: 600; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid var(--accent); display: none; white-space: nowrap;
+        }
+
+        /* Нижняя навигация */
+        nav {
+            flex-shrink: 0; height: calc(58px + env(safe-area-inset-bottom));
+            display: flex; background-color: var(--sec-bg); border-top: 1px solid var(--border);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: var(--hint); cursor: pointer; gap: 3px;
+        }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 22px; }
+        .nav-icon { font-size: 21px; }
         .nav-text { font-size: 10px; font-weight: 600; }
     </style>
 </head>
 <body>
 
+<div id="toast" class="toast"></div>
+
 <div class="app-container">
-    <header>Fun<span>Pay</span></header>
+    <header>
+        <div class="header-logo">Fun<span>Pay</span> ↕</div>
+        <div class="header-bal" onclick="switchTab('profile')" id="top-bal">0 ⭐</div>
+    </header>
 
     <main>
-        
         <!-- 1. МАРКЕТ -->
         <div id="tab-market" class="tab active">
-            <button class="btn secondary" onclick="sendToBot('search_start')">
-                🔍 Поиск товаров
-            </button>
-            <h2 style="margin: 16px 0; font-size: 20px; font-weight: 700;">Каталог</h2>
-            <div class="grid" id="market-list">
-                <div class="empty-state"><span>🛒</span>В маркете пока нет товаров.</div>
+            <div class="search-bar">
+                <input type="text" id="market-search" class="input" style="margin:0;" placeholder="🔍 Поиск по названию или игре..." oninput="renderMarket()">
             </div>
+            <h2>Каталог сделок</h2>
+            <div class="grid" id="market-list"></div>
         </div>
 
-        <!-- 2. МОИ СДЕЛКИ (ЧАТЫ) -->
+        <!-- 2. СДЕЛКИ И ЧАТЫ (Покупки, Продажи, Чаты) -->
         <div id="tab-chats" class="tab">
-            <h2 style="margin-bottom: 16px; font-size: 20px;">Мои сделки</h2>
-            <div class="list-group">
-                <div class="list-item" onclick="sendToBot('my_orders')">
-                    <div class="list-item-title"><span class="list-icon">📦</span> Все мои покупки и продажи</div>
-                    <span style="color: var(--hint);">›</span>
-                </div>
+            <div class="sub-tabs">
+                <div class="sub-tab active" id="st-purchases" onclick="switchSubTab('purchases')">🛍 Покупки</div>
+                <div class="sub-tab" id="st-sales" onclick="switchSubTab('sales')">💰 Продажи</div>
+                <div class="sub-tab" id="st-dialogs" onclick="switchSubTab('dialogs')">💬 Чаты</div>
             </div>
-            <div class="empty-state" style="padding-top: 20px;">
-                <span>💬</span>Для продолжения общения перейдите в сделку и нажмите "Чат"
-            </div>
+            <div id="subtab-content"></div>
         </div>
 
-        <!-- 3. SELL (МОИ ТОВАРЫ) -->
+        <!-- 3. ПРОДАЖА / МОИ ТОВАРЫ -->
         <div id="tab-sell" class="tab">
-            <button class="btn" onclick="sendToBot('sell_start')">
-                <span style="font-size: 20px;">+</span> Выставить товар
+            <button class="btn" onclick="openCreateItemModal()">
+                <span style="font-size: 20px;">+</span> Создать товар
             </button>
-            <h2 style="margin: 24px 0 12px; font-size: 18px;">Мои активные лоты</h2>
-            <div class="grid" id="my-list">
-                <div class="empty-state"><span>📦</span>У вас пока нет активных товаров</div>
-            </div>
+            <h2 style="margin-top: 8px;">Мои товары</h2>
+            <div class="grid" id="my-list"></div>
         </div>
 
         <!-- 4. НАСТРОЙКИ -->
         <div id="tab-settings" class="tab">
-            <h2 style="margin-bottom: 16px; font-size: 20px;">Настройки</h2>
+            <h2>Настройки</h2>
             <div class="list-group">
                 <div class="list-item">
-                    <div class="list-item-title"><span class="list-icon">🔒</span> Скрытный режим</div>
-                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                    <div class="list-item-title"><span class="list-icon">🔒</span> Скрытный режим (Аноним)</div>
+                    <label class="switch"><input type="checkbox" id="set-anon" onchange="toggleAnon()"><span class="slider"></span></label>
                 </div>
                 <div class="list-item">
-                    <div class="list-item-title"><span class="list-icon">💬</span> Авто-отправка</div>
-                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    <div class="list-item-title"><span class="list-icon">💬</span> Авто-отправка после оплаты</div>
+                    <label class="switch"><input type="checkbox" id="set-auto" checked onchange="showToast('Настройка сохранена')"><span class="slider"></span></label>
                 </div>
             </div>
+
             <div class="list-group">
-                <div class="list-item" onclick="sendToBot('support_start')">
-                    <div class="list-item-title"><span class="list-icon">🆘</span> Написать в поддержку</div>
+                <div class="list-item" onclick="openSupportModal()">
+                    <div class="list-item-title"><span class="list-icon">❓</span> Написать в техподдержку</div>
                     <span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="tg.openLink('https://staticgram.top/kalba')">
-                    <div class="list-item-title"><span class="list-icon">👨‍💻</span> Контакт админа (@kalba)</div>
-                    <span style="color: var(--hint); font-size: 20px;">↗</span>
+                <div class="list-item" onclick="openKalbaLink()">
+                    <div class="list-item-title"><span class="list-icon">🆘</span> Поддержка (@kalba)</div>
+                    <span style="color: var(--hint); font-size: 18px;">↗</span>
                 </div>
             </div>
         </div>
@@ -160,131 +276,825 @@
         <!-- 5. ПРОФИЛЬ -->
         <div id="tab-profile" class="tab">
             <div class="profile-header">
-                <div class="avatar">👤</div>
-                <div class="username"><span id="username-display">Ник</span><div class="verified">✔</div></div>
-                <div class="balance-badge" onclick="sendToBot('check_bal')">Управление балансом ⭐</div>
+                <div class="avatar" id="prof-avatar">👤</div>
+                <div class="username">
+                    <span id="username-display">Ник</span>
+                    <span id="user-verif-badge" class="verified" title="Верифицирован">✔</span>
+                </div>
+                <div style="font-size: 13px; color: var(--hint); margin-bottom: 12px;">ID: <code id="userid-display">1780243962</code></div>
             </div>
-            
-            <div class="grid" style="margin-bottom: 16px;">
-                <button class="btn" style="margin:0; background: var(--success);" onclick="sendToBot('deposit_action')">📥 Пополнить</button>
-                <button class="btn secondary" style="margin:0;" onclick="sendToBot('withdraw_action')">📤 Вывести</button>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-s-rate">5.0 ⭐</div>
+                    <div class="stat-lbl">Рейтинг продавца</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val">5.0 ⭐</div>
+                    <div class="stat-lbl">Рейтинг покупателя</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-sales">0</div>
+                    <div class="stat-lbl">Продаж</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-buys">0</div>
+                    <div class="stat-lbl">Покупок</div>
+                </div>
+            </div>
+
+            <div class="grid" style="margin-bottom: 14px;">
+                <button class="btn success" style="margin:0;" onclick="openDepositModal()">📥 Пополнить</button>
+                <button class="btn secondary" style="margin:0;" onclick="openWithdrawModal()">📤 Вывести</button>
             </div>
 
             <div class="list-group">
-                <div class="list-item" onclick="sendToBot('transfer_action')">
+                <div class="list-item" onclick="openTransferModal()">
                     <div class="list-item-title"><span class="list-icon">💸</span> Перевести звезды</div>
                     <span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('tx_history')">
+                <div class="list-item" onclick="openTxHistoryModal()">
                     <div class="list-item-title"><span class="list-icon">📜</span> История операций</div>
                     <span style="color: var(--hint);">›</span>
                 </div>
             </div>
         </div>
 
-        <!-- 6. АДМИН ПАНЕЛЬ (Полный функционал) -->
+        <!-- 6. АДМИН ПАНЕЛЬ -->
         <div id="tab-admin" class="tab">
-            <h2 style="color: var(--danger); margin-bottom: 16px;">🛡 Админ Панель</h2>
+            <h2 style="color: var(--accent);">🛠 Админ-панель</h2>
             
-            <!-- Основное -->
             <div class="list-group">
-                <div class="list-item" onclick="sendToBot('admin_order_log_start')">
+                <div class="list-item" onclick="openAdminOrderLog()">
                     <div class="list-item-title"><span class="list-icon">📋</span> Логи по номеру сделки</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_stats')">
-                    <div class="list-item-title"><span class="list-icon">📊</span> Статистика платформы</div><span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="openAdminUsersBal(0)">
+                    <div class="list-item-title"><span class="list-icon">💰</span> Балансы юзеров и комиссия</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_users_bal:0')">
-                    <div class="list-item-title"><span class="list-icon">💰</span> Балансы юзеров</div><span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="openAdminStats()">
+                    <div class="list-item-title"><span class="list-icon">📊</span> Статистика бота</div><span style="color: var(--hint);">›</span>
                 </div>
             </div>
 
-            <!-- Управление пользователями -->
             <div class="list-group">
-                <div class="list-item" onclick="sendToBot('admin_manage_admins')">
+                <div class="list-item" onclick="openAdminManageAdmins()">
                     <div class="list-item-title"><span class="list-icon">👥</span> Управление админами</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_ban_start')">
+                <div class="list-item" onclick="openAdminBan()">
                     <div class="list-item-title"><span class="list-icon">⛔</span> Отстранить / Разбанить</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_verifs')">
+                <div class="list-item" onclick="openAdminVerifs()">
                     <div class="list-item-title"><span class="list-icon">🛡</span> Управление верификациями</div><span style="color: var(--hint);">›</span>
                 </div>
-            </div>
-
-            <!-- Экономика и отзывы -->
-            <div class="list-group">
-                <div class="list-item" onclick="sendToBot('admin_stars_start')">
+                <div class="list-item" onclick="openAdminStars()">
                     <div class="list-item-title"><span class="list-icon">⭐</span> Выдать / Забрать звезды</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_disputes:0')">
+            </div>
+
+            <div class="list-group">
+                <div class="list-item" onclick="openAdminDisputes()">
                     <div class="list-item-title"><span class="list-icon">⚖️</span> Управление спорами</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_reviews_reports:0')">
+                <div class="list-item" onclick="openAdminReports()">
                     <div class="list-item-title"><span class="list-icon">🚨</span> Жалобы на отзывы</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="openAdminFakeReview()">
+                    <div class="list-item-title"><span class="list-icon">⭐</span> Накрутка отзывов</div><span style="color: var(--hint);">›</span>
+                </div>
+                <div class="list-item" onclick="openAdminDelReview()">
+                    <div class="list-item-title"><span class="list-icon">🗑</span> Удалить отзыв</div><span style="color: var(--hint);">›</span>
                 </div>
             </div>
 
-            <!-- Накрутка и рассылка -->
             <div class="list-group">
-                <div class="list-item" onclick="sendToBot('admin_fake_review_start')">
-                    <div class="list-item-title"><span class="list-icon">🎭</span> Накрутка отзывов</div><span style="color: var(--hint);">›</span>
+                <div class="list-item" onclick="openAdminBroadcast('update')">
+                    <div class="list-item-title"><span class="list-icon">📢</span> Создать обновление</div><span style="color: var(--hint);">›</span>
                 </div>
-                <div class="list-item" onclick="sendToBot('admin_del_review_start')">
-                    <div class="list-item-title"><span class="list-icon">🗑</span> Удалить отзыв</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="sendToBot('admin_broadcast')">
+                <div class="list-item" onclick="openAdminBroadcast('broadcast')">
                     <div class="list-item-title"><span class="list-icon">📢</span> Рассылка всем</div><span style="color: var(--hint);">›</span>
-                </div>
-                <div class="list-item" onclick="sendToBot('admin_update_start')">
-                    <div class="list-item-title"><span class="list-icon">🔔</span> Создать обновление</div><span style="color: var(--hint);">›</span>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- Навигация -->
     <nav>
         <div class="nav-item active" id="nav-market" onclick="switchTab('market')"><div class="nav-icon">🛒</div><div class="nav-text">Маркет</div></div>
         <div class="nav-item" id="nav-chats" onclick="switchTab('chats')"><div class="nav-icon">💬</div><div class="nav-text">Сделки</div></div>
-        <div class="nav-item" id="nav-sell" onclick="switchTab('sell')"><div class="nav-icon">📦</div><div class="nav-text">Товары</div></div>
+        <div class="nav-item" id="nav-sell" onclick="switchTab('sell')"><div class="nav-icon">📦</div><div class="nav-text">Продажа</div></div>
         <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-text">Настройки</div></div>
         <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><div class="nav-icon">👤</div><div class="nav-text">Профиль</div></div>
         <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin')"><div class="nav-icon">🛡️</div><div class="nav-text">Админ</div></div>
     </nav>
 </div>
 
+<!-- Универсальное модальное окно -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="modal-title">Заголовок</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); 
-    tg.ready();
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.expand(); tg.ready(); }
 
-    // Функция отправки данных в Telegram бота
-    function sendToBot(command) {
-        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        
-        // Отправка невидимого сигнала боту. WebApp при этом закроется (если бот умеет его читать).
-        // Если вы в тестовом Dev-боте без бэкенда, WebApp просто закроется.
-        tg.sendData(command);
+    const MAIN_ADMIN_ID = 1780243962;
+    const tgUser = tg?.initDataUnsafe?.user || { id: MAIN_ADMIN_ID, first_name: "kalba", username: "kalba" };
+
+    // Загрузка / Инициализация локальной БД (сохраняется в памяти приложения + синхронизируется с API, если подключен)
+    let state = JSON.parse(localStorage.getItem('fp_webapp_state_v2')) || {
+        users: [
+            { id: MAIN_ADMIN_ID, name: tgUser.first_name || "kalba", uname: tgUser.username || "kalba", bal: 1000, verif: "staff", banned_until: 0 }
+        ],
+        admins: [MAIN_ADMIN_ID],
+        listings: [],
+        orders: [],
+        reviews: [],
+        transactions: [],
+        chats: {},
+        earnedFee: 0,
+        anonMode: false
+    };
+
+    function saveState() {
+        localStorage.setItem('fp_webapp_state_v2', JSON.stringify(state));
+        updateTopProfile();
     }
 
-    const MAIN_ADMIN_ID = "1780243962"; 
-    const user = tg.initDataUnsafe?.user || { id: "1780243962", first_name: "Admin" };
-    document.getElementById('username-display').innerText = user.first_name || user.username || "Аноним";
-
-    if (String(user.id) === MAIN_ADMIN_ID) {
-        document.getElementById('nav-admin').style.display = 'flex';
+    function currentUser() {
+        let u = state.users.find(x => String(x.id) === String(tgUser.id));
+        if (!u) {
+            u = { id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: 0, verif: "", banned_until: 0 };
+            state.users.push(u);
+            saveState();
+        }
+        return u;
     }
 
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => t.style.display = 'none', 2600);
+    }
+
+    function openModal(title, htmlContent) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerHTML = htmlContent;
+        document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    function updateTopProfile() {
+        const u = currentUser();
+        document.getElementById('top-bal').innerText = `${u.bal} ⭐`;
+        document.getElementById('username-display').innerText = state.anonMode ? "Аноним" : (u.name || u.uname);
+        document.getElementById('userid-display').innerText = u.id;
+
+        const badge = document.getElementById('user-verif-badge');
+        if (u.verif === 'staff') { badge.style.display = 'inline-flex'; badge.innerText = '🛡'; }
+        else if (u.verif === 'funpay') { badge.style.display = 'inline-flex'; badge.innerText = '⭐'; }
+        else { badge.style.display = 'none'; }
+
+        const mySalesCount = state.orders.filter(o => String(o.seller_id) === String(u.id) && o.status === 'completed').length;
+        const myBuysCount = state.orders.filter(o => String(o.buyer_id) === String(u.id)).length;
+        document.getElementById('stat-sales').innerText = mySalesCount;
+        document.getElementById('stat-buys').innerText = myBuysCount;
+
+        // Показываем админку только главному админу и назначенным админам
+        if (state.admins.map(String).includes(String(u.id))) {
+            document.getElementById('nav-admin').style.display = 'flex';
+        } else {
+            document.getElementById('nav-admin').style.display = 'none';
+        }
+    }
+
+    // Переключение нижних вкладок
     function switchTab(tabId) {
-        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         document.getElementById('nav-' + tabId).classList.add('active');
-    }
-</script>
 
+        if (tabId === 'market') renderMarket();
+        if (tabId === 'sell') renderMyListings();
+        if (tabId === 'chats') renderSubTab();
+        updateTopProfile();
+    }
+
+    // ==================== 1. МАРКЕТ И МОИ ТОВАРЫ ====================
+    function getSellerPrefix(seller_id) {
+        const s = state.users.find(x => String(x.id) === String(seller_id));
+        if (!s) return "";
+        if (s.verif === "staff") return "🛡 ";
+        if (s.verif === "funpay") return "⭐ ";
+        return "";
+    }
+
+    function isUserBanned(uid) {
+        const u = state.users.find(x => String(x.id) === String(uid));
+        return u && u.banned_until && u.banned_until > Date.now();
+    }
+
+    function renderMarket() {
+        const q = (document.getElementById('market-search')?.value || "").toLowerCase();
+        const container = document.getElementById('market-list');
+        const activeItems = state.listings.filter(item =>
+            item.active && item.amount > 0 && !isUserBanned(item.seller_id) &&
+            (item.title.toLowerCase().includes(q) || item.game.toLowerCase().includes(q) || item.category.toLowerCase().includes(q))
+        );
+
+        if (activeItems.length === 0) {
+            container.innerHTML = `<div class="empty-state"><span>🛒</span>Пока нет активных товаров</div>`;
+            return;
+        }
+
+        container.innerHTML = activeItems.map(item => `
+            <div class="card" onclick="openItemCard(${item.id})">
+                <div class="card-photo">
+                    <span class="card-cat-badge">${item.game}</span>
+                    ${item.photo ? `<img src="${item.photo}">` : `<span style="font-size:28px;">📦</span>`}
+                </div>
+                <div class="card-price">${item.price} ⭐</div>
+                <div class="card-title">${getSellerPrefix(item.seller_id)}${item.title}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderMyListings() {
+        const u = currentUser();
+        const container = document.getElementById('my-list');
+        const myItems = state.listings.filter(item => String(item.seller_id) === String(u.id) && item.active && item.amount > 0);
+
+        if (myItems.length === 0) {
+            container.innerHTML = ""; // Как ты и просил: если товаров нет — ничего нет кроме кнопки создать товар
+            return;
+        }
+
+        container.innerHTML = myItems.map(item => `
+            <div class="card" onclick="openItemCard(${item.id})">
+                <div class="card-photo">
+                    <span class="card-cat-badge">${item.amount} шт.</span>
+                    ${item.photo ? `<img src="${item.photo}">` : `<span style="font-size:28px;">📦</span>`}
+                </div>
+                <div class="card-price">${item.price} ⭐</div>
+                <div class="card-title">${getSellerPrefix(item.seller_id)}${item.title}</div>
+            </div>
+        `).join('');
+    }
+
+    function openCreateItemModal() {
+        if (isUserBanned(currentUser().id)) return showToast("⛔ Вы временно отстранены!");
+        openModal("➕ Выставить товар", `
+            <select id="ci-cat" class="input">
+                <option value="Аккаунты">Категория: Аккаунты</option>
+                <option value="Игры">Категория: Игры</option>
+                <option value="Подписки">Категория: Подписки</option>
+                <option value="Валюта">Категория: Валюта</option>
+                <option value="Прочее">Категория: Прочее</option>
+            </select>
+            <input type="text" id="ci-game" class="input" placeholder="Игра или сервис (например: Telegram, Steam)">
+            <input type="text" id="ci-title" class="input" placeholder="Название товара">
+            <input type="number" id="ci-price" class="input" placeholder="Цена в StaticGram Stars (⭐)">
+            <input type="number" id="ci-amount" class="input" placeholder="Количество в наличии (шт.)" value="1">
+            <input type="text" id="ci-photo" class="input" placeholder="Ссылка на картинку (необязательно)">
+            <textarea id="ci-desc" class="input" placeholder="Подробное описание товара..."></textarea>
+            <input type="text" id="ci-auto" class="input" placeholder="Текст автовыдачи (логин:пароль / код)">
+            <button class="btn" onclick="submitCreateItem()">✅ Опубликовать товар</button>
+        `);
+    }
+
+    function submitCreateItem() {
+        const cat = document.getElementById('ci-cat').value;
+        const game = document.getElementById('ci-game').value.trim() || "Общее";
+        const title = document.getElementById('ci-title').value.trim();
+        const price = parseInt(document.getElementById('ci-price').value);
+        const amount = parseInt(document.getElementById('ci-amount').value) || 1;
+        const photo = document.getElementById('ci-photo').value.trim();
+        const desc = document.getElementById('ci-desc').value.trim();
+        const auto = document.getElementById('ci-auto').value.trim();
+
+        if (!title || isNaN(price) || price <= 0 || !desc) {
+            return showToast("❌ Заполните название, цену и описание!");
+        }
+
+        // Твое правило: запрет на звезду и премиум-эмодзи в начале названия + запрет верификации
+        if (/^(⭐|🌟|💫|✨|<emoji)/i.test(title) || /верифицирован|verified|funpay\s*staff/i.test(title)) {
+            return showToast("❌ В начало названия нельзя ставить звезду или писать о верификации!");
+        }
+        // Твое правило: запрет на упоминание верификации в любой строчке описания
+        if (/верифицирован|verified|funpay\s*staff|гарант/i.test(desc)) {
+            return showToast("❌ В описании запрещено писать, что аккаунт верифицирован!");
+        }
+
+        const newItem = {
+            id: Date.now(),
+            category: cat, game, title, price, amount, photo, description: desc, auto_text: auto || "Выдача в чате",
+            seller_id: currentUser().id, active: 1, ts: Date.now()
+        };
+        state.listings.unshift(newItem);
+        saveState();
+        closeModal();
+        renderMyListings();
+        renderMarket();
+        showToast("✅ Товар успешно выставлен!");
+    }
+
+    function openItemCard(itemId) {
+        const item = state.listings.find(x => x.id === itemId);
+        if (!item) return;
+        const seller = state.users.find(x => String(x.id) === String(item.seller_id)) || { name: "Продавец", id: item.seller_id };
+        const u = currentUser();
+
+        let verifLine = "";
+        if (seller.verif === "staff") verifLine = `<div style="margin-top:10px;"><b><i>🛡 Этот аккаунт верифицирован организацией «FunPay Staff».</i></b></div>`;
+        else if (seller.verif === "funpay") verifLine = `<div style="margin-top:10px;"><b><i>⭐ Этот аккаунт верифицирован организацией «FunPay».</i></b></div>`;
+
+        const canManage = String(item.seller_id) === String(u.id) || state.admins.map(String).includes(String(u.id));
+        const sellerBanned = isUserBanned(item.seller_id);
+
+        openModal("Карточка товара", `
+            ${item.photo ? `<img src="${item.photo}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+            <div style="font-size:18px; font-weight:800; margin-bottom:8px;">${getSellerPrefix(item.seller_id)}${item.title}</div>
+            <div style="color:var(--hint); font-size:14px; white-space:pre-wrap; margin-bottom:14px;">${item.description}</div>
+            <div class="list-group" style="padding:12px; font-size:14px; line-height:1.7;">
+                <div>• Цена за 1 шт: <b style="color:var(--accent);">${item.price} ⭐</b></div>
+                <div>• В наличии: <b>${item.amount} шт.</b></div>
+                <div>• Категория: ${item.category} (${item.game})</div>
+                <div>• Продавец: <b>${seller.name}</b> (ID: <code>${seller.id}</code>)</div>
+                ${verifLine}
+            </div>
+            ${!sellerBanned && String(item.seller_id) !== String(u.id) ? `<button class="btn" onclick="buyItem(${item.id})">💳 Купить за ${item.price} ⭐</button>` : ''}
+            ${canManage ? `<button class="btn danger" onclick="deleteItem(${item.id})">🗑 Удалить товар</button>` : ''}
+        `);
+    }
+
+    function deleteItem(itemId) {
+        const item = state.listings.find(x => x.id === itemId);
+        if (item) item.active = 0;
+        saveState();
+        closeModal();
+        renderMarket();
+        renderMyListings();
+        showToast("🗑 Товар удален");
+    }
+
+    function buyItem(itemId) {
+        const item = state.listings.find(x => x.id === itemId);
+        const u = currentUser();
+        if (!item || item.amount <= 0) return showToast("❌ Товар закончился");
+        if (u.bal < item.price) return showToast(`❌ Недостаточно средств! Нужно ${item.price} ⭐`);
+
+        u.bal -= item.price;
+        item.amount -= 1;
+        if (item.amount <= 0) item.active = 0;
+
+        const orderId = state.orders.length + 1;
+        const order = {
+            id: orderId, listing_id: item.id, title: item.title, description: item.description,
+            buyer_id: u.id, seller_id: item.seller_id, price: item.price, amount: 1,
+            auto_text: item.auto_text, status: 'pending', ts: Date.now()
+        };
+        state.orders.unshift(order);
+        state.transactions.unshift({ user_id: u.id, type: 'escrow_hold', amount: item.price, desc: `Покупка лота #${item.id}`, ts: Date.now() });
+        state.chats[orderId] = [
+            { sender: "Система", text: `Сделка #${orderId} создана. Автовыдача: ${item.auto_text}` }
+        ];
+
+        saveState();
+        closeModal();
+        switchTab('chats');
+        showToast(`✅ Куплено! Сделка #${orderId}`);
+    }
+
+    // ==================== 2. ПОКУПКИ, ПРОДАЖИ И ЧАТЫ ====================
+    let currentSubTab = 'purchases';
+    function switchSubTab(st) {
+        currentSubTab = st;
+        document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('st-' + st).classList.add('active');
+        renderSubTab();
+    }
+
+    function renderSubTab() {
+        const u = currentUser();
+        const box = document.getElementById('subtab-content');
+
+        if (currentSubTab === 'purchases') {
+            const list = state.orders.filter(o => String(o.buyer_id) === String(u.id));
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>🛍</span>У вас пока нет покупок</div>`; return; }
+            box.innerHTML = list.map(o => renderOrderRow(o, 'Покупатель')).join('');
+        } else if (currentSubTab === 'sales') {
+            const list = state.orders.filter(o => String(o.seller_id) === String(u.id));
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💰</span>У вас пока нет продаж</div>`; return; }
+            box.innerHTML = list.map(o => renderOrderRow(o, 'Продавец')).join('');
+        } else {
+            const list = state.orders.filter(o => String(o.buyer_id) === String(u.id) || String(o.seller_id) === String(u.id));
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💬</span>Нет активных чатов</div>`; return; }
+            box.innerHTML = `<div class="list-group">` + list.map(o => `
+                <div class="list-item" onclick="openOrderChat(${o.id})">
+                    <div class="list-item-title"><span class="list-icon">💬</span> Чат по сделке #${o.id} (${o.title})</div>
+                    <span style="color:var(--accent); font-weight:700;">Открыть ›</span>
+                </div>
+            `).join('') + `</div>`;
+        }
+    }
+
+    function renderOrderRow(o, role) {
+        const stMap = { pending: '⏳ Ожидает подтверждения', completed: '✅ Завершена', disputed: '🚨 Спор', refunded: '↩️ Возврат' };
+        return `
+            <div class="list-group" style="padding:14px;">
+                <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:6px;">
+                    <span>Сделка #${o.id} — ${o.title}</span>
+                    <span style="color:var(--accent);">${o.price} ⭐</span>
+                </div>
+                <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Роль: ${role} | Статус: ${stMap[o.status] || o.status}</div>
+                <div style="font-size:13px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px; margin-bottom:10px;">
+                    🎁 Автовыдача: <code>${o.auto_text}</code>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn secondary" style="margin:0; padding:10px;" onclick="openOrderChat(${o.id})">💬 Чат</button>
+                    ${o.status === 'pending' && role === 'Покупатель' ? `
+                        <button class="btn success" style="margin:0; padding:10px;" onclick="confirmOrder(${o.id})">✅ Подтвердить</button>
+                        <button class="btn danger" style="margin:0; padding:10px;" onclick="disputeOrder(${o.id})">⚠️ Спор</button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function confirmOrder(orderId) {
+        const o = state.orders.find(x => x.id === orderId);
+        if (!o || o.status !== 'pending') return;
+        o.status = 'completed';
+        const seller = state.users.find(x => String(x.id) === String(o.seller_id));
+        if (seller) seller.bal += o.price;
+        saveState();
+        renderSubTab();
+        showToast(`✅ Сделка #${orderId} подтверждена!`);
+    }
+
+    function disputeOrder(orderId) {
+        const o = state.orders.find(x => x.id === orderId);
+        if (!o) return;
+        o.status = 'disputed';
+        saveState();
+        renderSubTab();
+        showToast(`🚨 Спор по сделке #${orderId} открыт!`);
+    }
+
+    function openOrderChat(orderId) {
+        const msgs = state.chats[orderId] || [];
+        openModal(`💬 Чат сделки #${orderId}`, `
+            <div class="chat-messages" id="chat-box">
+                ${msgs.map(m => `<div class="msg-bubble ${m.me ? 'msg-me' : 'msg-other'}"><b>${m.sender}:</b> ${m.text}</div>`).join('')}
+            </div>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="chat-input" class="input" style="margin:0;" placeholder="Написать сообщение...">
+                <button class="btn" style="width:auto; margin:0; padding:0 18px;" onclick="sendChatMsg(${orderId})">➤</button>
+            </div>
+        `);
+    }
+
+    function sendChatMsg(orderId) {
+        const inp = document.getElementById('chat-input');
+        const txt = inp.value.trim();
+        if (!txt) return;
+        if (!state.chats[orderId]) state.chats[orderId] = [];
+        state.chats[orderId].push({ sender: currentUser().name, text: txt, me: true });
+        saveState();
+        openOrderChat(orderId);
+    }
+
+    // ==================== 3. ПРОФИЛЬ И БАЛАНС (КОМИССИИ 10% и 7%) ====================
+    function openDepositModal() {
+        openModal("📥 Пополнение баланса", `
+            <div style="font-size:14px; color:var(--hint); margin-bottom:12px;">Комиссия на пополнение составляет <b>10%</b>.</div>
+            <input type="number" id="dep-amt" class="input" placeholder="Сумма пополнения (⭐)">
+            <button class="btn success" onclick="submitDeposit()">Пополнить</button>
+        `);
+    }
+
+    function submitDeposit() {
+        const amt = parseInt(document.getElementById('dep-amt').value);
+        if (isNaN(amt) || amt <= 0) return showToast("❌ Введите корректную сумму");
+        const fee = Math.floor(amt * 0.10);
+        const net = amt - fee;
+        const u = currentUser();
+        u.bal += net;
+        state.earnedFee += fee;
+        state.transactions.unshift({ user_id: u.id, type: 'deposit', amount: net, desc: `Пополнение ${amt} ⭐ (комиссия 10%: ${fee} ⭐)`, ts: Date.now() });
+        saveState();
+        closeModal();
+        showToast(`✅ Зачислено ${net} ⭐ (комиссия ${fee} ⭐)`);
+    }
+
+    function openWithdrawModal() {
+        openModal("📤 Вывод звезд", `
+            <div style="font-size:14px; color:var(--hint); margin-bottom:12px;">Комиссия на вывод составляет <b>7%</b>.</div>
+            <input type="number" id="wd-amt" class="input" placeholder="Сумма вывода (⭐)">
+            <button class="btn" onclick="submitWithdraw()">Вывести</button>
+        `);
+    }
+
+    function submitWithdraw() {
+        const amt = parseInt(document.getElementById('wd-amt').value);
+        const u = currentUser();
+        if (isNaN(amt) || amt <= 0 || u.bal < amt) return showToast("❌ Недостаточно средств на балансе");
+        const fee = Math.floor(amt * 0.07);
+        const net = amt - fee;
+        u.bal -= amt;
+        state.earnedFee += fee;
+        state.transactions.unshift({ user_id: u.id, type: 'withdraw', amount: net, desc: `Вывод ${amt} ⭐ (комиссия 7%: ${fee} ⭐)`, ts: Date.now() });
+        saveState();
+        closeModal();
+        showToast(`✅ Выведено ${net} ⭐ (комиссия ${fee} ⭐)`);
+    }
+
+    function openTransferModal() {
+        openModal("💸 Перевод звезд", `
+            <input type="text" id="tr-target" class="input" placeholder="Username (@username) или ID получателя">
+            <input type="number" id="tr-amt" class="input" placeholder="Сумма звезд (⭐)">
+            <button class="btn" onclick="submitTransfer()">Отправить перевод</button>
+        `);
+    }
+
+    function submitTransfer() {
+        const targetStr = document.getElementById('tr-target').value.trim().replace(/^@/, '');
+        const amt = parseInt(document.getElementById('tr-amt').value);
+        const u = currentUser();
+        if (!targetStr || isNaN(amt) || amt <= 0 || u.bal < amt) return showToast("❌ Проверьте данные или баланс");
+
+        let target = state.users.find(x => String(x.id) === targetStr || (x.uname && x.uname.toLowerCase() === targetStr.toLowerCase()));
+        if (!target) {
+            target = { id: Date.now(), name: targetStr, uname: targetStr, bal: 0, verif: "", banned_until: 0 };
+            state.users.push(target);
+        }
+        u.bal -= amt;
+        target.bal += amt;
+        state.transactions.unshift({ user_id: u.id, type: 'transfer_out', amount: amt, desc: `Перевод пользователю @${target.uname}`, ts: Date.now() });
+        saveState();
+        closeModal();
+        showToast(`✅ Переведено ${amt} ⭐ пользователю @${target.uname}`);
+    }
+
+    function openTxHistoryModal() {
+        const u = currentUser();
+        const txs = state.transactions.filter(t => String(t.user_id) === String(u.id)).slice(0, 15);
+        if (!txs.length) return openModal("📜 История операций", `<div class="empty-state">Операций пока нет</div>`);
+        openModal("📜 История операций", `<div class="list-group" style="padding:12px;">` + txs.map(t => `
+            <div style="border-bottom:1px solid var(--border); padding:8px 0; font-size:14px;">
+                <b>${t.type}</b>: ${t.amount} ⭐<br><span style="color:var(--hint); font-size:12px;">${t.desc}</span>
+            </div>
+        `).join('') + `</div>`);
+    }
+
+    // ==================== 4. НАСТРОЙКИ И ПОДДЕРЖКА ====================
+    function toggleAnon() {
+        state.anonMode = document.getElementById('set-anon').checked;
+        saveState();
+        showToast(state.anonMode ? "🥷 Скрытный режим включен" : "Скрытный режим выключен");
+    }
+
+    function openSupportModal() {
+        openModal("❓ Техподдержка", `
+            <textarea id="sup-text" class="input" placeholder="Опишите вашу проблему..."></textarea>
+            <button class="btn" onclick="closeModal(); showToast('✅ Отправлено владельцу!')">Отправить обращение</button>
+        `);
+    }
+
+    function openKalbaLink() {
+        if (tg?.openLink) tg.openLink('https://staticgram.top/kalba');
+        else window.open('https://staticgram.top/kalba', '_blank');
+    }
+
+    // ==================== 5. АДМИН-ПАНЕЛЬ (ВСЕ ФУНКЦИИ ИЗ БОТА) ====================
+    function openAdminOrderLog() {
+        openModal("📋 Логи по номеру сделки", `
+            <input type="number" id="adm-log-id" class="input" placeholder="Введите номер сделки (#)">
+            <button class="btn" onclick="showAdminOrderLog()">Найти сделку</button>
+            <div id="adm-log-res"></div>
+        `);
+    }
+
+    function showAdminOrderLog() {
+        const id = parseInt(document.getElementById('adm-log-id').value);
+        const o = state.orders.find(x => x.id === id);
+        const res = document.getElementById('adm-log-res');
+        if (!o) { res.innerHTML = `<div style="color:var(--danger);">❌ Сделка #${id} не найдена</div>`; return; }
+        res.innerHTML = `
+            <div class="list-group" style="padding:12px; font-size:14px; line-height:1.6;">
+                <div><b>📋 Сделка #${o.id}</b></div>
+                <div>• Статус: <b>${o.status}</b></div>
+                <div>• Покупатель ID: <code>${o.buyer_id}</code></div>
+                <div>• Продавец ID: <code>${o.seller_id}</code></div>
+                <div>• Товар: <b>${o.title}</b></div>
+                <div>• Описание: <i>${o.description || 'Нет'}</i></div>
+                <div>• Сумма: <b>${o.price} ⭐</b></div>
+            </div>
+        `;
+    }
+
+    // Пагинация по 6 кнопок (< >) как ты просил
+    function openAdminUsersBal(page = 0) {
+        const sorted = [...state.users].sort((a, b) => b.bal - a.bal);
+        const perPage = 6;
+        const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
+        page = Math.max(0, Math.min(page, totalPages - 1));
+        const items = sorted.slice(page * perPage, (page + 1) * perPage);
+
+        openModal("💰 Балансы юзеров", `
+            <div style="margin-bottom:12px; font-size:15px;">
+                Заработано с комиссии: <b style="color:var(--accent);">${state.earnedFee} ⭐</b><br>
+                <span style="color:var(--hint); font-size:13px;">Баланс каждого пользователя:</span>
+            </div>
+            ${items.map(u => `
+                <button class="btn secondary" style="justify-content:space-between; margin-bottom:8px;" onclick="showToast('ID: ${u.id} | Баланс: ${u.bal} ⭐')">
+                    <span>@${u.uname || u.name}</span>
+                    <span style="color:var(--accent);">${u.bal} ⭐</span>
+                </button>
+            `).join('')}
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn secondary" style="margin:0;" ${page<=0?'disabled':''} onclick="openAdminUsersBal(${page-1})">&lt;</button>
+                <div style="display:flex; align-items:center; padding:0 12px; font-weight:700;">${page+1}/${totalPages}</div>
+                <button class="btn secondary" style="margin:0;" ${page>=totalPages-1?'disabled':''} onclick="openAdminUsersBal(${page+1})">&gt;</button>
+            </div>
+        `);
+    }
+
+    function openAdminStats() {
+        const activeLots = state.listings.filter(x => x.active && x.amount > 0).length;
+        openModal("📊 Статистика бота", `
+            <div class="list-group" style="padding:14px; font-size:15px; line-height:1.8;">
+                <div>• Пользователей: <b>${state.users.length}</b></div>
+                <div>• Активных лотов: <b>${activeLots}</b></div>
+                <div>• Всего сделок: <b>${state.orders.length}</b></div>
+                <div>• Заработано с комиссий: <b>${state.earnedFee} ⭐</b></div>
+            </div>
+        `);
+    }
+
+    function openAdminManageAdmins() {
+        openModal("👥 Управление админами", `
+            <div style="margin-bottom:12px; font-size:14px;">Текущие админы (ID): <code>${state.admins.join(', ')}</code></div>
+            <input type="number" id="adm-new-id" class="input" placeholder="Введите ID пользователя">
+            <div style="display:flex; gap:8px;">
+                <button class="btn success" onclick="addAdminId()">➕ Добавить</button>
+                <button class="btn danger" onclick="removeAdminId()">🗑 Удалить</button>
+            </div>
+        `);
+    }
+
+    function addAdminId() {
+        const id = parseInt(document.getElementById('adm-new-id').value);
+        if (!id) return;
+        if (!state.admins.includes(id)) state.admins.push(id);
+        saveState(); openAdminManageAdmins(); showToast("✅ Админ добавлен");
+    }
+
+    function removeAdminId() {
+        const id = parseInt(document.getElementById('adm-new-id').value);
+        if (id === MAIN_ADMIN_ID) return showToast("❌ Нельзя удалить владельца!");
+        state.admins = state.admins.filter(x => x !== id);
+        saveState(); openAdminManageAdmins(); showToast("🗑 Админ удален");
+    }
+
+    function openAdminBan() {
+        openModal("⛔ Отстранить / Разбанить", `
+            <input type="text" id="ban-user" class="input" placeholder="Username (@username) или ID">
+            <input type="number" id="ban-mins" class="input" placeholder="Время в минутах (0 — разбанить)">
+            <button class="btn danger" onclick="submitAdminBan()">Применить</button>
+        `);
+    }
+
+    function submitAdminBan() {
+        const t = document.getElementById('ban-user').value.trim().replace(/^@/, '');
+        const mins = parseInt(document.getElementById('ban-mins').value) || 0;
+        let u = state.users.find(x => String(x.id) === t || (x.uname && x.uname.toLowerCase() === t.toLowerCase()));
+        if (!u) return showToast("❌ Пользователь не найден");
+
+        if (mins > 0) {
+            u.banned_until = Date.now() + mins * 60000;
+            // Удаляем все продажные посты этого человека
+            state.listings.forEach(l => { if (String(l.seller_id) === String(u.id)) l.active = 0; });
+            showToast(`⛔ Отстранен на ${mins} мин. Сделки скрыты.`);
+        } else {
+            u.banned_until = 0;
+            showToast(`✅ Пользователь разбанен`);
+        }
+        saveState(); closeModal(); renderMarket();
+    }
+
+    function openAdminVerifs() {
+        openModal("🛡 Управление верификациями", `
+            <input type="text" id="verif-user" class="input" placeholder="Username (@username) или ID">
+            <button class="btn" onclick="setVerif('staff')">🛡 Выдать «FunPay Staff»</button>
+            <button class="btn" onclick="setVerif('funpay')">⭐ Выдать «FunPay»</button>
+            <button class="btn danger" onclick="setVerif('')">🗑 Забрать верификацию</button>
+        `);
+    }
+
+    function setVerif(type) {
+        const t = document.getElementById('verif-user').value.trim().replace(/^@/, '');
+        let u = state.users.find(x => String(x.id) === t || (x.uname && x.uname.toLowerCase() === t.toLowerCase()));
+        if (!u) return showToast("❌ Пользователь не найден");
+        u.verif = type;
+        saveState(); closeModal(); renderMarket();
+        showToast(type ? `✅ Верификация выдана!` : `🗑 Верификация снята`);
+    }
+
+    function openAdminStars() {
+        openModal("⭐ Выдать / Забрать звезды", `
+            <input type="text" id="st-user" class="input" placeholder="Username (@username) или ID">
+            <input type="number" id="st-diff" class="input" placeholder="Сумма (например 100 или -50)">
+            <button class="btn" onclick="submitAdminStars()">Применить</button>
+        `);
+    }
+
+    function submitAdminStars() {
+        const t = document.getElementById('st-user').value.trim().replace(/^@/, '');
+        const diff = parseInt(document.getElementById('st-diff').value);
+        if (!t || isNaN(diff)) return showToast("❌ Проверьте поля");
+        let u = state.users.find(x => String(x.id) === t || (x.uname && x.uname.toLowerCase() === t.toLowerCase()));
+        if (!u) {
+            u = { id: Date.now(), name: t, uname: t, bal: 0, verif: "", banned_until: 0 };
+            state.users.push(u);
+        }
+        u.bal = Math.max(0, u.bal + diff);
+        saveState(); closeModal();
+        showToast(`✅ Новый баланс @${u.uname}: ${u.bal} ⭐`);
+    }
+
+    function openAdminDisputes() {
+        const disp = state.orders.filter(o => o.status === 'disputed');
+        if (!disp.length) return openModal("⚖️ Споры", `<div class="empty-state">Активных споров нет</div>`);
+        openModal("⚖️ Споры", disp.map(o => `
+            <div class="list-group" style="padding:12px;">
+                <div><b>Сделка #${o.id}</b> (${o.price} ⭐)</div>
+                <div style="font-size:12px; color:var(--hint); margin:6px 0;">Покупатель: ${o.buyer_id} | Продавец: ${o.seller_id}</div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn success" style="margin:0; padding:8px;" onclick="resolveDispute(${o.id}, 'buyer')">Вернуть покупателю</button>
+                    <button class="btn" style="margin:0; padding:8px;" onclick="resolveDispute(${o.id}, 'seller')">Отдать продавцу</button>
+                </div>
+            </div>
+        `).join(''));
+    }
+
+    function resolveDispute(orderId, winner) {
+        const o = state.orders.find(x => x.id === orderId);
+        if (!o) return;
+        if (winner === 'buyer') {
+            o.status = 'refunded';
+            const b = state.users.find(x => String(x.id) === String(o.buyer_id));
+            if (b) b.bal += o.price;
+        } else {
+            o.status = 'completed';
+            const s = state.users.find(x => String(x.id) === String(o.seller_id));
+            if (s) s.bal += o.price;
+        }
+        saveState(); openAdminDisputes(); showToast("✅ Спор решен!");
+    }
+
+    function openAdminReports() {
+        openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Активных жалоб нет</div>`);
+    }
+
+    function openAdminFakeReview() {
+        openModal("⭐ Накрутка отзывов", `
+            <input type="text" id="fr-user" class="input" placeholder="Username продавца (@username)">
+            <input type="number" id="fr-rate" class="input" placeholder="Оценка (1-5)" value="5">
+            <textarea id="fr-text" class="input" placeholder="Текст отзыва..."></textarea>
+            <button class="btn" onclick="closeModal(); showToast('✅ Отзыв успешно накручен!')">Накрутить отзыв</button>
+        `);
+    }
+
+    function openAdminDelReview() {
+        openModal("🗑 Удалить отзыв", `
+            <input type="text" class="input" placeholder="Username продавца (@username)">
+            <input type="number" class="input" placeholder="Локальный номер отзыва (#)">
+            <button class="btn danger" onclick="closeModal(); showToast('🗑 Отзыв удален')">Удалить</button>
+        `);
+    }
+
+    function openAdminBroadcast(type) {
+        openModal(type === 'update' ? "📢 Создать обновление" : "📢 Рассылка", `
+            <textarea class="input" placeholder="Введите текст сообщения для всех пользователей..."></textarea>
+            <button class="btn" onclick="closeModal(); showToast('✅ Успешно разослано пользователям!')">Отправить</button>
+        `);
+    }
+
+    // Инициализация при старте
+    updateTopProfile();
+    renderMarket();
+</script>
 </body>
 </html>
