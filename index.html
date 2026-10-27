@@ -120,6 +120,16 @@
         }
         .sub-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
+        .chat-box {
+            display: flex; flex-direction: column; height: 320px; background: var(--sec-bg);
+            border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 10px;
+        }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.4; }
+        .msg-my { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; }
+        .msg-other { align-self: flex-start; background: rgba(255,255,255,0.1); color: var(--text); }
+        .chat-input-row { display: flex; padding: 8px; background: var(--bg); border-top: 1px solid var(--border); gap: 8px; }
+
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.7); z-index: 100; display: none;
@@ -293,7 +303,8 @@
         admins: [MAIN_ADMIN_ID],
         listings: [],
         orders: [],
-        reviews: []
+        reviews: [],
+        chats: {}
     };
 
     if (urlParams.has("bal")) {
@@ -321,6 +332,7 @@
                     state.listings = data.listings || [];
                     state.orders = data.orders || [];
                     state.reviews = data.reviews || [];
+                    if (data.chats) state.chats = data.chats;
                     updateTopProfile();
                     renderMarket();
                     renderMyListings();
@@ -348,6 +360,7 @@
                 if (data.listings) state.listings = data.listings;
                 if (data.orders) state.orders = data.orders;
                 if (data.reviews) state.reviews = data.reviews;
+                if (data.chats) state.chats = data.chats;
                 updateTopProfile();
                 renderMarket();
                 renderMyListings();
@@ -550,7 +563,7 @@
         showToast("✅ Покупка успешна!");
     }
 
-    // Просмотр отзывов о продавце
+    // Отзывы продавца
     function openSellerReviews(sellerId, sellerName) {
         const revs = state.reviews.filter(r => String(r.seller_id) === String(sellerId) && Number(r.reported) === 0);
         const avg = revs.length ? (revs.reduce((a,b)=>a+Number(b.rating),0)/revs.length).toFixed(1) : "5.0";
@@ -595,6 +608,15 @@
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
                     <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Статус: <b>${o.status}</b></div>
+                    ${o.status === 'pending' ? `
+                        <div style="display:flex; gap:8px; margin-bottom:8px;">
+                            <button class="btn success" style="margin:0; padding:10px;" onclick="confirmOrder(${o.id})">✅ Подтвердить</button>
+                            <button class="btn danger" style="margin:0; padding:10px;" onclick="disputeOrder(${o.id})">⚠️ Спор</button>
+                        </div>
+                    ` : ''}
+                    ${o.status === 'completed' && !state.reviews.some(r => String(r.order_id) === String(o.id)) ? `
+                        <button class="btn" style="margin:0; padding:10px;" onclick="openReviewModal(${o.id}, ${o.seller_id})">⭐ Оставить отзыв</button>
+                    ` : ''}
                 </div>
             `).join('');
         } else if (currentSubTab === 'sales') {
@@ -610,8 +632,93 @@
                 </div>
             `).join('');
         } else {
-            box.innerHTML = `<div class="empty-state"><span>💬</span>Чаты доступны через бота в Telegram</div>`;
+            const list = state.orders.filter(o => String(o.buyer_id) === String(u.id) || String(o.seller_id) === String(u.id));
+            if (!list.length) { box.innerHTML = `<div class="empty-state"><span>💬</span>Нет активных чатов</div>`; return; }
+            box.innerHTML = `<div class="list-group">` + list.map(o => `
+                <div class="list-item" onclick="openOrderChat(${o.id})">
+                    <div class="list-item-title"><span class="list-icon">💬</span> Чат по сделке #${o.id}</div>
+                    <span style="color:var(--accent); font-weight:700;">Открыть ›</span>
+                </div>
+            `).join('') + `</div>`;
         }
+    }
+
+    async function confirmOrder(orderId) {
+        await apiCall({ action: "confirm_order", order_id: orderId });
+        renderSubTab();
+        showToast("✅ Заказ подтвержден, выплачено продавцу!");
+    }
+
+    async function disputeOrder(orderId) {
+        await apiCall({ action: "dispute_order", order_id: orderId });
+        renderSubTab();
+        showToast("🚨 Спор открыт!");
+    }
+
+    function openReviewModal(orderId, sellerId) {
+        openModal("⭐ Оставить отзыв", `
+            <select id="rev-rating" class="input">
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+            </select>
+            <textarea id="rev-text" class="input" placeholder="Напишите комментарий..."></textarea>
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px;">
+                <input type="checkbox" id="rev-anon" style="width:18px; height:18px;"> Оставить отзыв анонимно
+            </label>
+            <button class="btn" onclick="submitReview(${orderId}, ${sellerId})">📤 Отправить отзыв</button>
+        `);
+    }
+
+    async function submitReview(orderId, sellerId) {
+        const rating = parseInt(document.getElementById('rev-rating').value);
+        const comment = document.getElementById('rev-text').value.trim() || "Без комментария";
+        const anonymous = document.getElementById('rev-anon').checked ? 1 : 0;
+        
+        await apiCall({ action: "add_review", order_id: orderId, rating, comment, anonymous });
+        closeModal();
+        renderSubTab();
+        showToast("✅ Отзыв опубликован!");
+    }
+
+    function openOrderChat(orderId) {
+        const msgs = state.chats[orderId] || [
+            { sender: "Система", text: `Чат по сделке #${orderId} открыт.` }
+        ];
+
+        openModal(`💬 Чат сделки #${orderId}`, `
+            <div class="chat-box">
+                <div class="chat-messages" id="chat-msgs">
+                    ${msgs.map(m => `
+                        <div class="msg ${String(m.sender_id) === String(tgUser.id) ? 'msg-my' : 'msg-other'}">
+                            <div style="font-size:11px; opacity:0.7; margin-bottom:2px;">${m.sender}</div>
+                            <div>${m.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-txt" class="input" style="margin:0;" placeholder="Сообщение...">
+                    <button class="btn" style="width:auto; margin:0; padding:0 16px;" onclick="sendChatMessage(${orderId})">➤</button>
+                </div>
+            </div>
+        `);
+        const box = document.getElementById('chat-msgs');
+        if (box) box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendChatMessage(orderId) {
+        const inp = document.getElementById('chat-txt');
+        const text = inp.value.trim();
+        if (!text) return;
+
+        if (!state.chats[orderId]) state.chats[orderId] = [];
+        const u = currentUser();
+        state.chats[orderId].push({ sender_id: u.id, sender: u.name || u.uname, text: text });
+        
+        await apiCall({ action: "send_chat", order_id: orderId, text });
+        openOrderChat(orderId);
     }
 
     // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ ====================
@@ -674,74 +781,15 @@
         `;
     }
 
-    function openAdminManageAdmins() {
-        openModal("👥 Управление админами", `
-            <div style="margin-bottom:12px; font-size:14px;">Текущие админы (ID): <code>${state.admins.join(', ')}</code></div>
-            <input type="number" id="adm-new-id" class="input" placeholder="ID пользователя">
-            <button class="btn success" onclick="showToast('Админ сохранен в базе')">➕ Добавить ID в админы</button>
-        `);
-    }
-
-    function openAdminBan() {
-        openModal("⛔ Отстранить / Разбанить", `
-            <input type="text" id="ban-user" class="input" placeholder="Username (@username) или ID">
-            <input type="number" id="ban-mins" class="input" placeholder="Время в минутах (0 — разбан)">
-            <button class="btn danger" onclick="showToast('Статус бана изменен')">Применить</button>
-        `);
-    }
-
-    function openAdminVerifs() {
-        openModal("🛡 Верификации", `
-            <input type="text" class="input" placeholder="Username (@username) или ID">
-            <button class="btn" onclick="showToast('Выдана галочка Staff')">🛡 Выдать «FunPay Staff»</button>
-            <button class="btn" onclick="showToast('Выдана галочка FunPay')">⭐ Выдать «FunPay»</button>
-            <button class="btn danger" onclick="showToast('Верификация снята')">🗑 Забрать</button>
-        `);
-    }
-
-    function openAdminStars() {
-        openModal("⭐ Выдать / Забрать звезды", `
-            <input type="text" class="input" placeholder="Username (@username) или ID">
-            <input type="number" class="input" placeholder="Количество (например 100 или -50)">
-            <button class="btn" onclick="showToast('Баланс пользователя изменен')">Изменить баланс</button>
-        `);
-    }
-
-    function openAdminDisputes() {
-        const disp = state.orders.filter(o => o.status === 'disputed');
-        if (!disp.length) return openModal("⚖️ Споры", `<div class="empty-state">Активных споров нет</div>`);
-        openModal("⚖️ Споры", disp.map(o => `<div class="list-item">Сделка #${o.id} <button class="btn success" style="width:auto; margin:0; padding:6px 12px;" onclick="showToast('Спор закрыт')">Решить</button></div>`).join(''));
-    }
-
-    function openAdminReports() {
-        const reps = state.reviews.filter(r => Number(r.reported) === 1);
-        if (!reps.length) return openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Нет жалоб на отзывы</div>`);
-        openModal("🚨 Жалобы на отзывы", reps.map(r => `<div class="list-item">Отзыв #${r.id} <button class="btn danger" style="width:auto; margin:0; padding:6px 12px;" onclick="showToast('Отзыв удален')">Удалить</button></div>`).join(''));
-    }
-
-    function openAdminFakeReview() {
-        openModal("⭐ Накрутка отзывов", `
-            <input type="text" class="input" placeholder="Username продавца">
-            <input type="number" class="input" placeholder="Оценка (1-5)" value="5">
-            <textarea class="input" placeholder="Текст отзыва..."></textarea>
-            <button class="btn" onclick="closeModal(); showToast('✅ Отзыв накручен')">Накрутить</button>
-        `);
-    }
-
-    function openAdminDelReview() {
-        openModal("🗑 Удалить отзыв", `
-            <input type="text" class="input" placeholder="Username продавца">
-            <input type="number" class="input" placeholder="Номер отзыва (#)">
-            <button class="btn danger" onclick="closeModal(); showToast('🗑 Отзыв удален')">Удалить</button>
-        `);
-    }
-
-    function openAdminBroadcast(type) {
-        openModal(type === 'update' ? "📢 Создать обновление" : "📢 Рассылка", `
-            <textarea class="input" placeholder="Текст рассылки для всех пользователей..."></textarea>
-            <button class="btn" onclick="closeModal(); showToast('✅ Рассылка запущена')">Отправить всем</button>
-        `);
-    }
+    function openAdminManageAdmins() { openModal("👥 Управление админами", `<input type="number" class="input" placeholder="ID пользователя"><button class="btn success" onclick="showToast('Админ сохранен в базе')">Добавить ID в админы</button>`); }
+    function openAdminBan() { openModal("⛔ Отстранить / Разбанить", `<input type="text" class="input" placeholder="Username или ID"><input type="number" class="input" placeholder="Минуты (0 - разбан)"><button class="btn danger" onclick="showToast('Статус бана изменен')">Применить</button>`); }
+    function openAdminVerifs() { openModal("🛡 Верификации", `<input type="text" class="input" placeholder="Username или ID"><button class="btn" onclick="showToast('Верификация выдана')">Выдать галочку</button>`); }
+    function openAdminStars() { openModal("⭐ Выдать / Забрать звезды", `<input type="text" class="input" placeholder="Username или ID"><input type="number" class="input" placeholder="Сумма (+ / -)"><button class="btn" onclick="showToast('Баланс изменен')">Изменить</button>`); }
+    function openAdminDisputes() { openModal("⚖️ Управление спорами", `<div class="empty-state">Нет активных споров</div>`); }
+    function openAdminReports() { openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Нет жалоб</div>`); }
+    function openAdminFakeReview() { openModal("⭐ Накрутка отзывов", `<input type="text" class="input" placeholder="Username"><button class="btn" onclick="closeModal();showToast('Отзыв накручен')">Накрутить</button>`); }
+    function openAdminDelReview() { openModal("🗑 Удалить отзыв", `<input type="text" class="input" placeholder="Username"><button class="btn danger" onclick="closeModal();showToast('Удалено')">Удалить</button>`); }
+    function openAdminBroadcast(type) { openModal(type==='update'?"📢 Обновление":"📢 Рассылка", `<textarea class="input" placeholder="Текст..."></textarea><button class="btn" onclick="closeModal();showToast('Отправлено')">Отправить</button>`); }
 
     syncWithBackend();
     setInterval(() => syncWithBackend(), 3000);
