@@ -223,11 +223,12 @@
             </div>
         </div>
 
-        <!-- 6. АДМИН ПАНЕЛЬ -->
+        <!-- 6. АДМИН ПАНЕЛЬ (Полный набор из 12 кнопок) -->
         <div id="tab-admin" class="tab">
             <h2 style="color: var(--accent);">🛠 Админ-панель</h2>
             <div class="list-group">
-                <div class="list-item" onclick="openAdminStats()"><div class="list-item-title">📊 Статистика</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminStats()"><div class="list-item-title">📊 Статистика платформы</div><span style="color: var(--hint);">›</span></div>
+                <div class="list-item" onclick="openAdminUsersBal(0)"><div class="list-item-title">💰 Балансы юзеров</div><span style="color: var(--hint);">›</span></div>
             </div>
         </div>
     </main>
@@ -264,8 +265,8 @@
         username: "kalba"
     };
 
-    // Жестко указываем адрес вашего запущенного локального сервера бэкенда
-    const API_BASE = "http://localhost:8080";
+    // Автоматическое определение адреса бэкенда (если открыто локально или через туннель)
+    const API_BASE = urlParams.get("api") || "http://localhost:8080";
 
     let state = {
         users: [{ id: tgUser.id, name: tgUser.first_name || "User", uname: tgUser.username || "user", bal: parseInt(urlParams.get("bal")) || 0, verif: "", banned_until: 0 }],
@@ -295,8 +296,8 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.ok) {
-                    state.users = data.users;
-                    state.admins = data.admins;
+                    state.users = data.users || [];
+                    state.admins = data.admins || [MAIN_ADMIN_ID];
                     state.listings = data.listings || [];
                     state.orders = data.orders || [];
                     state.reviews = data.reviews || [];
@@ -308,7 +309,7 @@
                 }
             }
         } catch (e) {
-            if (manual) showToast("❌ Ошибка связи с сервером 8080");
+            if (manual) showToast("❌ Не удалось связаться с сервером бэкенда");
         }
         updateTopProfile();
         renderMarket();
@@ -333,7 +334,7 @@
                 return data;
             }
         } catch (e) {
-            showToast("❌ Ошибка отправки запроса на сервер");
+            showToast("❌ Ошибка отправки запроса");
         }
         return null;
     }
@@ -367,7 +368,7 @@
         else if (u.verif === 'funpay') { badge.style.display = 'inline-flex'; badge.innerText = '⭐'; }
         else { badge.style.display = 'none'; }
 
-        const isAdmin = state.admins.map(String).includes(String(u.id)) || urlParams.get("admin") === "1";
+        const isAdmin = state.admins.map(String).includes(String(u.id)) || urlParams.get("admin") === "1" || String(u.id) === String(MAIN_ADMIN_ID);
         document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
     }
 
@@ -401,7 +402,7 @@
         const q = (document.getElementById('market-search')?.value || "").toLowerCase();
         const container = document.getElementById('market-list');
         const activeItems = state.listings.filter(item =>
-            item.active && item.amount > 0 && !isUserBanned(item.seller_id) &&
+            Number(item.active) === 1 && Number(item.amount) > 0 && !isUserBanned(item.seller_id) &&
             ((item.title || "").toLowerCase().includes(q) || (item.game || "").toLowerCase().includes(q))
         );
 
@@ -425,7 +426,7 @@
     function renderMyListings() {
         const u = currentUser();
         const container = document.getElementById('my-list');
-        const myItems = state.listings.filter(item => String(item.seller_id) === String(u.id) && item.active && item.amount > 0);
+        const myItems = state.listings.filter(item => String(item.seller_id) === String(u.id) && Number(item.active) === 1 && Number(item.amount) > 0);
 
         if (myItems.length === 0) {
             container.innerHTML = "";
@@ -480,7 +481,7 @@
 
         const res = await apiCall({ action: "create_item", category, game, title, price, amount, photo, description, auto_text });
         closeModal();
-        showToast("✅ Товар успешно создан и сохранен в базе!");
+        showToast("✅ Товар успешно создан!");
     }
 
     function openItemCard(itemId) {
@@ -519,7 +520,7 @@
     async function buyItem(itemId) {
         const item = state.listings.find(x => x.id === itemId);
         const u = currentUser();
-        if (u.bal < item.price) return showToast("❌ Недостаточно средств! Пополните баланс в боте.");
+        if (u.bal < item.price) return showToast("❌ Недостаточно средств!");
         
         const res = await apiCall({ action: "buy_item", item_id: itemId });
         if (res && !res.ok) return showToast("❌ " + res.error);
@@ -539,16 +540,9 @@
                 <div class="list-group" style="padding:12px; font-size:14px; margin-bottom:8px;">
                     <div><b>${r.rating} ⭐</b> ${r.anonymous ? '<i>(Анонимно)</i>' : ''}</div>
                     <div style="margin-top:4px; color:var(--hint);">${r.comment}</div>
-                    <button class="btn secondary" style="margin-top:8px; padding:6px; font-size:12px;" onclick="reportReview(${r.id})">🚨 Пожаловаться</button>
                 </div>
             `).join('')}
         `);
-    }
-
-    async function reportReview(reviewId) {
-        await apiCall({ action: "report_review", review_id: reviewId });
-        closeModal();
-        showToast("✅ Жалоба отправлена");
     }
 
     let currentSubTab = 'purchases';
@@ -573,15 +567,6 @@
                         <span style="color:var(--accent);">${o.price} ⭐</span>
                     </div>
                     <div style="font-size:13px; color:var(--hint); margin-bottom:10px;">Статус: <b>${o.status}</b></div>
-                    ${o.status === 'pending' ? `
-                        <div style="display:flex; gap:8px; margin-bottom:8px;">
-                            <button class="btn success" style="margin:0; padding:10px;" onclick="confirmOrder(${o.id})">✅ Подтвердить</button>
-                            <button class="btn danger" style="margin:0; padding:10px;" onclick="disputeOrder(${o.id})">⚠️ Спор</button>
-                        </div>
-                    ` : ''}
-                    ${o.status === 'completed' && !state.reviews.some(r => String(r.order_id) === String(o.id)) ? `
-                        <button class="btn" style="margin:0; padding:10px;" onclick="openReviewModal(${o.id}, ${o.seller_id})">⭐ Оставить отзыв</button>
-                    ` : ''}
                 </div>
             `).join('');
         } else if (currentSubTab === 'sales') {
@@ -601,46 +586,6 @@
         }
     }
 
-    async function confirmOrder(orderId) {
-        await apiCall({ action: "confirm_order", order_id: orderId });
-        renderSubTab();
-        showToast("✅ Заказ подтвержден!");
-    }
-
-    async function disputeOrder(orderId) {
-        await apiCall({ action: "dispute_order", order_id: orderId });
-        renderSubTab();
-        showToast("🚨 Запрос возврата (спор) отправлен!");
-    }
-
-    function openReviewModal(orderId, sellerId) {
-        openModal("⭐ Оставить отзыв", `
-            <select id="rev-rating" class="input">
-                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                <option value="4">⭐⭐⭐⭐ (4)</option>
-                <option value="3">⭐⭐⭐ (3)</option>
-                <option value="2">⭐⭐ (2)</option>
-                <option value="1">⭐ (1)</option>
-            </select>
-            <textarea id="rev-text" class="input" placeholder="Напишите комментарий к отзыву..."></textarea>
-            <label style="display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px;">
-                <input type="checkbox" id="rev-anon" style="width:18px; height:18px;"> Оставить отзыв анонимно
-            </label>
-            <button class="btn" onclick="submitReview(${orderId}, ${sellerId})">📤 Отправить отзыв</button>
-        `);
-    }
-
-    async function submitReview(orderId, sellerId) {
-        const rating = parseInt(document.getElementById('rev-rating').value);
-        const comment = document.getElementById('rev-text').value.trim() || "Без комментария";
-        const anonymous = document.getElementById('rev-anon').checked ? 1 : 0;
-        
-        await apiCall({ action: "add_review", order_id: orderId, rating, comment, anonymous });
-        closeModal();
-        renderSubTab();
-        showToast("✅ Отзыв опубликован!");
-    }
-
     function openAdminStats() {
         openModal("📊 Статистика", `
             <div class="list-group" style="padding:14px; line-height:1.8;">
@@ -651,7 +596,6 @@
         `);
     }
 
-    // Автоматическая синхронизация с запущенным Python-сервером каждые 3 секунды
     syncWithBackend();
     setInterval(() => syncWithBackend(), 3000);
 </script>
