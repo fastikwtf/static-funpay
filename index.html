@@ -721,7 +721,8 @@
         openOrderChat(orderId);
     }
 
-    // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ ====================
+<script>
+    // ==================== 12 КНОПОК АДМИН-ПАНЕЛИ (Связь с сервером) ====================
     function openAdminStats() {
         const activeLots = state.listings.filter(x => Number(x.active) === 1 && Number(x.amount) > 0).length;
         openModal("📊 Статистика платформы", `
@@ -743,10 +744,10 @@
 
         openModal("💰 Балансы юзеров", `
             <div style="margin-bottom:12px; font-size:14px; color:var(--hint);">Баланс каждого пользователя в системе:</div>
-            ${items.map(u => `
+            ${items.map(usr => `
                 <div class="list-group" style="padding:12px; display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <span>@${u.uname || u.name || u.id}</span>
-                    <b style="color:var(--accent);">${u.bal} ⭐</b>
+                    <span>@${usr.uname || usr.name || usr.id} ${usr.verif ? '('+usr.verif+')' : ''}</span>
+                    <b style="color:var(--accent);">${usr.bal} ⭐</b>
                 </div>
             `).join('')}
             <div style="display:flex; gap:8px; margin-top:10px;">
@@ -781,18 +782,70 @@
         `;
     }
 
-    function openAdminManageAdmins() { openModal("👥 Управление админами", `<input type="number" class="input" placeholder="ID пользователя"><button class="btn success" onclick="showToast('Админ сохранен в базе')">Добавить ID в админы</button>`); }
-    function openAdminBan() { openModal("⛔ Отстранить / Разбанить", `<input type="text" class="input" placeholder="Username или ID"><input type="number" class="input" placeholder="Минуты (0 - разбан)"><button class="btn danger" onclick="showToast('Статус бана изменен')">Применить</button>`); }
-    function openAdminVerifs() { openModal("🛡 Верификации", `<input type="text" class="input" placeholder="Username или ID"><button class="btn" onclick="showToast('Верификация выдана')">Выдать галочку</button>`); }
-    function openAdminStars() { openModal("⭐ Выдать / Забрать звезды", `<input type="text" class="input" placeholder="Username или ID"><input type="number" class="input" placeholder="Сумма (+ / -)"><button class="btn" onclick="showToast('Баланс изменен')">Изменить</button>`); }
+    function openAdminManageAdmins() {
+        openModal("👥 Управление админами", `
+            <input type="number" id="new-adm-inp" class="input" placeholder="ID пользователя">
+            <button class="btn success" onclick="submitAddAdmin()">Добавить в админы</button>
+        `);
+    }
+    async function submitAddAdmin() {
+        const admin_id = parseInt(document.getElementById('new-adm-inp').value);
+        if (!admin_id) return showToast("❌ Введите ID");
+        await apiCall({ action: "admin_add_admin", admin_id });
+        closeModal(); showToast("✅ Админ добавлен");
+    }
+
+    function openAdminBan() {
+        openModal("⛔ Отстранить / Разбанить", `
+            <input type="text" id="ban-target" class="input" placeholder="Username (@) или ID">
+            <input type="number" id="ban-mins" class="input" placeholder="Минуты бана (0 — разбан)" value="60">
+            <button class="btn danger" onclick="submitAdminBan()">Применить</button>
+        `);
+    }
+    async function submitAdminBan() {
+        const target = document.getElementById('ban-target').value.trim();
+        const minutes = parseInt(document.getElementById('ban-mins').value) || 0;
+        const res = await apiCall({ action: "admin_ban", target, minutes });
+        if (res && res.ok) { closeModal(); showToast("✅ Статус бана обновлен"); }
+        else { showToast("❌ Ошибка (пользователь не найден)"); }
+    }
+
+    function openAdminVerifs() {
+        openModal("🛡 Верификации", `
+            <input type="text" id="verif-target" class="input" placeholder="Username (@) или ID">
+            <button class="btn" onclick="submitAdminVerif('staff')">🛡 Выдать «FunPay Staff»</button>
+            <button class="btn" onclick="submitAdminVerif('funpay')">⭐ Выдать «FunPay»</button>
+            <button class="btn danger" onclick="submitAdminVerif('')">🗑 Снять верификацию</button>
+        `);
+    }
+    async function submitAdminVerif(verif_type) {
+        const target = document.getElementById('verif-target').value.trim();
+        if (!target) return showToast("❌ Укажите пользователя");
+        const res = await apiCall({ action: "admin_verif", target, verif_type });
+        if (res && res.ok) { closeModal(); showToast("✅ Верификация обновлена!"); }
+        else { showToast("❌ Пользователь не найден"); }
+    }
+
+    function openAdminStars() {
+        openModal("⭐ Выдать / Забрать звезды", `
+            <input type="text" id="stars-target" class="input" placeholder="Username (@) или ID">
+            <input type="number" id="stars-diff" class="input" placeholder="Сумма (например 100 или -50)">
+            <button class="btn" onclick="submitAdminStars()">Изменить баланс</button>
+        `);
+    }
+    async function submitAdminStars() {
+        const target = document.getElementById('stars-target').value.trim();
+        const diff = parseInt(document.getElementById('stars-diff').value) || 0;
+        const res = await apiCall({ action: "admin_stars", target, diff });
+        if (res && res.ok) { closeModal(); showToast("✅ Баланс пользователя изменен!"); }
+        else { showToast("❌ Ошибка"); }
+    }
+
     function openAdminDisputes() { openModal("⚖️ Управление спорами", `<div class="empty-state">Нет активных споров</div>`); }
     function openAdminReports() { openModal("🚨 Жалобы на отзывы", `<div class="empty-state">Нет жалоб</div>`); }
     function openAdminFakeReview() { openModal("⭐ Накрутка отзывов", `<input type="text" class="input" placeholder="Username"><button class="btn" onclick="closeModal();showToast('Отзыв накручен')">Накрутить</button>`); }
     function openAdminDelReview() { openModal("🗑 Удалить отзыв", `<input type="text" class="input" placeholder="Username"><button class="btn danger" onclick="closeModal();showToast('Удалено')">Удалить</button>`); }
-    function openAdminBroadcast(type) { openModal(type==='update'?"📢 Обновление":"📢 Рассылка", `<textarea class="input" placeholder="Текст..."></textarea><button class="btn" onclick="closeModal();showToast('Отправлено')">Отправить</button>`); }
-
-    syncWithBackend();
-    setInterval(() => syncWithBackend(), 3000);
+    function openAdminBroadcast(type) { openModal(type==='update'?"📢 Обновление":"📢 Рассылка", `<textarea class="input" placeholder="Текст..."></textarea><button class="btn" onclick="closeModal();showToast('Рассылка отправлена')">Отправить</button>`); }
 </script>
 </body>
 </html>
